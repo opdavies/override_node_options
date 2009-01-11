@@ -13,13 +13,13 @@
 function override_node_options_perm() {
 $results = db_query("SELECT type FROM {node_type}");
 
-while ($value = db_result($results)) {
-   $perms[] = 'override ' . $value . ' published option';
-   $perms[] = 'override ' . $value . ' promote to front page option';
-   $perms[] = 'override ' . $value . ' sticky option';
-   $perms[] = 'override ' . $value . ' revision option';
-   $perms[] = 'override ' . $value . ' authored on option';
-   $perms[] = 'override ' . $value . ' authored by option';
+while ($value = db_fetch_array($results)) {
+   $perms[] = 'override ' . $value['type'] . ' published option';
+   $perms[] = 'override ' . $value['type'] . ' promote to front page option';
+   $perms[] = 'override ' . $value['type'] . ' sticky option';
+   $perms[] = 'override ' . $value['type'] . ' revision option';
+   $perms[] = 'override ' . $value['type'] . ' authored on option';
+   $perms[] = 'override ' . $value['type'] . ' authored by option';
 }
   return $perms;
 }
@@ -85,7 +85,7 @@ function override_node_options_admin_settings() {
 		}
 		
 		if(module_exists(comment)){	
-        $form['authoring_information'] = array(
+        $form['comment_settings'] = array(
         '#type' => 'fieldset',
         '#title' => t('Comment settings'),
         '#description' => t('Options for the Comment settings fieldset on the node form.'),
