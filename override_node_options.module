@@ -1,5 +1,5 @@
 <?php
-// $Id$
+// $Id:
 
 /**
  * @file
@@ -13,13 +13,13 @@
 function override_node_options_perm() {
 $results = db_query("SELECT type FROM {node_type}");
 
-while ($value = db_fetch_array($results)) {
-   $perms[] = 'override ' . $value['type'] . ' published option';
-   $perms[] = 'override ' . $value['type'] . ' promote to front page option';
-   $perms[] = 'override ' . $value['type'] . ' sticky option';
-   $perms[] = 'override ' . $value['type'] . ' revision option';
-   $perms[] = 'override ' . $value['type'] . ' authored on option';
-   $perms[] = 'override ' . $value['type'] . ' authored by option';
+while ($value = db_result($results)) {
+   $perms[] = 'override ' . $value . ' published option';
+   $perms[] = 'override ' . $value . ' promote to front page option';
+   $perms[] = 'override ' . $value . ' sticky option';
+   $perms[] = 'override ' . $value . ' revision option';
+   $perms[] = 'override ' . $value . ' authored on option';
+   $perms[] = 'override ' . $value . ' authored by option';
 }
   return $perms;
 }
@@ -84,25 +84,6 @@ function override_node_options_admin_settings() {
 		);
 		}
 		
-		if(module_exists(comment)){	
-        $form['comment_settings'] = array(
-        '#type' => 'fieldset',
-        '#title' => t('Comment settings'),
-        '#description' => t('Options for the Comment settings fieldset on the node form.'),
-         );
-
-	    $form['comment_settings']['override_node_options_cscollapsible'] = array(
-		'#type' => 'checkbox',
-		'#title' => t('Comment settings collapsible'),
-		'#default_value' => variable_get('override_node_options_cscollapsible', 1),
-		);
-		$form['comment_settings']['override_node_options_cscollapsed'] = array(
-		'#type' => 'checkbox',
-		'#title' => t('Comment settings collapsed by default'),
-		'#default_value' => variable_get('override_node_options_cscollapsed', 1),
-		);
-		}
-		
 		if(module_exists(node)){	
         $form['authoring_information'] = array(
         '#type' => 'fieldset',
@@ -151,7 +132,12 @@ function override_node_options_admin_settings() {
 function override_node_options_form_alter(&$form, $form_state, $form_id) {
   if (isset($form['type']) && $form['type']['#value'] .'_node_form' == $form_id && !user_access('administer nodes')) {
     $node = $form['#node'];
-    
+
+    /* make sure the preview shows the correct values */
+    if($node->op == 'Preview') {
+      _override_node_options_apply_keys($node);
+    }
+
     if(user_access('override ' . $form['type']['#value'] . ' published option') || user_access('override ' . $form['type']['#value'] . ' promote to front page option') || user_access('override ' . $form['type']['#value'] . ' sticky option') || user_access('override ' . $form['type']['#value'] . ' revision option')){
     
     $form['options'] = array(
@@ -198,7 +184,7 @@ function override_node_options_form_alter(&$form, $form_state, $form_id) {
           '#type' => 'textfield',
           '#title' => t('Authored by'),
           '#maxlength' => 60,
-          '#default_value' => $node->name ? $node->name : '',
+          '#default_value' => $node->name,
           '#weight' => -1,
           '#description' => t('Leave blank for %anonymous.', array('%anonymous' => variable_get('anonymous', t('Anonymous')))),
           );
@@ -223,17 +209,13 @@ function override_node_options_form_alter(&$form, $form_state, $form_id) {
   }
 
    if (isset($form['type']) && $form['type']['#value'] .'_node_form' == $form_id) {
-  	if(module_exists(comment)){ 	
-  		$form['comment_settings']['#collapsible'] = variable_get('override_node_options_cscollapsible', 1);
-  		$form['comment_settings']['#collapsed'] = variable_get('override_node_options_cscollapsed', 1);
-  	}
   	if(module_exists(node)){ 	
   		$form['options']['#collapsible'] = variable_get('override_node_options_pocollapsible', 1);
   		$form['options']['#collapsed'] = variable_get('override_node_options_pocollapsed', 1);
   	}
   	if(module_exists(node)){ 	
-  		$form['author']['#collapsible'] = variable_get('override_node_options_aicollapsible', 1);
-  		$form['author']['#collapsed'] = variable_get('override_node_options_aicollapsed', 1);
+  		$form['options']['#collapsible'] = variable_get('override_node_options_aicollapsible', 1);
+  		$form['options']['#collapsed'] = variable_get('override_node_options_aicollapsed', 1);
   	}
   	if(module_exists(upload)){
   		$form['attachments']['#collapsible'] = variable_get('override_node_options_facollapsible', 1);
@@ -247,6 +229,50 @@ function override_node_options_form_alter(&$form, $form_state, $form_id) {
 }
 
 
+function _override_node_options_apply_keys(&$node){
+    $keys = array(
+          'override_publishing_status' => 'status',
+          'override_publishing_promote' => 'promote',
+          'override_publishing_sticky' => 'sticky',
+          'override_publishing_revision' => 'revision'
+        );
+
+        $options = variable_get('node_options_' . $node->type, NULL);
+        if($options){
+        foreach ($options as $option){
+            $default->$option = $option;
+        }
+        }
+
+        foreach ($keys as $override_key => $real_key) {
+          if (isset($node->$override_key)) {
+            $node->$real_key = $node->$override_key;
+          }
+           elseif (isset($default->$real_key)) {
+                  $node->$real_key = TRUE;
+                  }
+              }
+
+        // Node creation date override
+        if ($node->date !== $node->override_authored_on || !empty($node->override_authored_on)) {
+         $node->date = $node->override_authored_on;
+         $node->created = !empty($node->override_authored_on) ? strtotime($node->override_authored_on) : time();
+        }
+        
+        
+          if (!empty($node->override_authored_by)) {
+            $account = user_load(array('name' => $node->override_authored_by));
+            $node->name = $account->name;
+            $node->uid = $account->uid;
+          }
+          else {
+            $node->name = "";
+            $node->uid = 0;
+          }
+        
+
+}
+
 /**
  * Implementation of hook_nodeapi().
  */
@@ -257,36 +283,9 @@ function override_node_options_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
       // options.
       // TODO: Once in core, remove adminster nodes check.
       if (!user_access('administer nodes')) {
-        $keys = array(
-          'override_publishing_status' => 'status',
-          'override_publishing_promote' => 'promote',
-          'override_publishing_sticky' => 'sticky',
-          'override_publishing_revision' => 'revision'          
-        );
-        foreach ($keys as $override_key => $real_key) {
-          if (isset($node->$override_key)) {
-            $node->$real_key = $node->$override_key;
-          }
-        }
-        if(user_access('override ' . $node->type . ' authored on option')){
-        // Node creation date override
-        if ($node->date !== $node->override_authored_on || !empty($node->override_authored_on)) {
-         $node->created = !empty($node->override_authored_on) ? strtotime($node->override_authored_on) : time();
-        }
-        }
-        if(user_access('override ' . $node->type . ' authored by option')){
-        if ($node->name !== $node->override_authored_by) {
-          if (!empty($node->override_authored_by)) {
-            $account = user_load(array('name' => $node->override_authored_by));
-            $node->uid = $account->uid;
-          }
-          else {
-            $node->uid = 0;
-          }
-        }
-        }
-        
-        
+
+        _override_node_options_apply_keys($node);
+ 
       }
       break;
   }
