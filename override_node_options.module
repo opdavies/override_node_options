@@ -254,12 +254,12 @@ function _override_node_options_apply_keys(&$node){
               }
 
         // Node creation date override
-        if ($node->date !== $node->override_authored_on || !empty($node->override_authored_on)) {
+        if (isset($node->override_authored_on) && user_access('override ' . $node->type . ' authored on option') && ($node->date != $node->override_authored_on)) { 
          $node->date = $node->override_authored_on;
          $node->created = !empty($node->override_authored_on) ? strtotime($node->override_authored_on) : time();
         }
         
-        
+        if (isset($node->override_authored_by) && user_access('override ' . $node->type . ' authored by option') && ($node->name != $node->override_authored_by)) { 
           if (!empty($node->override_authored_by)) {
             $account = user_load(array('name' => $node->override_authored_by));
             $node->name = $account->name;
@@ -269,7 +269,7 @@ function _override_node_options_apply_keys(&$node){
             $node->name = "";
             $node->uid = 0;
           }
-        
+        }
 
 }
 
