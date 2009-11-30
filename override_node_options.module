@@ -35,7 +35,7 @@ function override_node_options_menu() {
     'description' => t('Allow non-admins to override the default publishing options for nodes they can edit'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('override_node_options_admin_settings'),
-    'access arguments' => array('access administration pages'),
+    'access arguments' => array('administer site configuration'),
     'type' => MENU_NORMAL_ITEM,
    );
      return $items;
