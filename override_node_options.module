@@ -84,43 +84,37 @@ function override_node_options_admin_settings() {
 		);
 	}
 	
-		if (module_exists(node)) {	
-        $form['authoring_information'] = array(
-        '#type' => 'fieldset',
-        '#title' => t('Authoring information'),
-        '#description' => t('Options for the Authoring information fieldset on the node form.'),
-         );
-
-	    $form['authoring_information']['override_node_options_aicollapsible'] = array(
-		'#type' => 'checkbox',
-		'#title' => t('Authoring information collapsible'),
-		'#default_value' => variable_get('override_node_options_aicollapsible', 1),
-		);
-		$form['authoring_information']['override_node_options_aicollapsed'] = array(
-		'#type' => 'checkbox',
-		'#title' => t('Authoring information collapsed by default'),
-		'#default_value' => variable_get('override_node_options_aicollapsed', 1),
-		);
-		}
+  $form['authoring_information'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Authoring information'),
+    '#description' => t('Options for the Authoring information fieldset on the node form.'),
+  );
+  $form['authoring_information']['override_node_options_aicollapsible'] = array(
+  	'#type' => 'checkbox',
+  	'#title' => t('Authoring information collapsible'),
+  	'#default_value' => variable_get('override_node_options_aicollapsible', 1),
+	);
+	$form['authoring_information']['override_node_options_aicollapsed'] = array(
+  	'#type' => 'checkbox',
+  	'#title' => t('Authoring information collapsed by default'),
+  	'#default_value' => variable_get('override_node_options_aicollapsed', 1),
+	);
 		
-		if (module_exists(node)) {	
-        $form['publishing_options'] = array(
-        '#type' => 'fieldset',
-        '#title' => t('Publishing options'),
-        '#description' => t('Options for the Publishing options fieldset on the node form.'),
-         );
-
-	    $form['publishing_options']['override_node_options_pocollapsible'] = array(
+  $form['publishing_options'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Publishing options'),
+    '#description' => t('Options for the Publishing options fieldset on the node form.'),
+  );
+  $form['publishing_options']['override_node_options_pocollapsible'] = array(
 		'#type' => 'checkbox',
 		'#title' => t('Publishing options collapsible'),
 		'#default_value' => variable_get('override_node_options_pocollapsible', 1),
-		);
-		$form['publishing_options']['override_node_options_pocollapsed'] = array(
-		'#type' => 'checkbox',
-		'#title' => t('Publishing options collapsed by default'),
-		'#default_value' => variable_get('override_node_options_pocollapsed', 1),
-		);
-		}
+	);
+	$form['publishing_options']['override_node_options_pocollapsed'] = array(
+  	'#type' => 'checkbox',
+  	'#title' => t('Publishing options collapsed by default'),
+  	'#default_value' => variable_get('override_node_options_pocollapsed', 1),
+	);
 		
 	return system_settings_form($form);
 }
@@ -208,22 +202,20 @@ function override_node_options_form_alter(&$form, $form_state, $form_id) {
   }
 
    if (isset($form['type']) && $form['type']['#value'] .'_node_form' == $form_id) {
-  	if (module_exists(node)) { 	
-  		$form['options']['#collapsible'] = variable_get('override_node_options_pocollapsible', 1);
-  		$form['options']['#collapsed'] = variable_get('override_node_options_pocollapsed', 1);
-  	}
-  	if (module_exists(node)) { 	
-  		$form['options']['#collapsible'] = variable_get('override_node_options_aicollapsible', 1);
-  		$form['options']['#collapsed'] = variable_get('override_node_options_aicollapsed', 1);
-  	}
-  	if (module_exists(upload)) {
-  		$form['attachments']['#collapsible'] = variable_get('override_node_options_facollapsible', 1);
-  		$form['attachments']['#collapsed'] = variable_get('override_node_options_facollapsed', 1);
-  	}
-  	if (module_exists(scheduler)) {
-  		$form['scheduler_settings']['#collapsible'] = variable_get('override_node_options_sscollapsible', 1);
-  		$form['scheduler_settings']['#collapsed'] = variable_get('override_node_options_sscollapsed', 1);
-  	}
+    $form['options']['#collapsible'] = variable_get('override_node_options_pocollapsible', 1);
+    $form['options']['#collapsed'] = variable_get('override_node_options_pocollapsed', 1);
+    
+    $form['options']['#collapsible'] = variable_get('override_node_options_aicollapsible', 1);
+    $form['options']['#collapsed'] = variable_get('override_node_options_aicollapsed', 1);
+    	
+    if (module_exists(upload)) {
+    	$form['attachments']['#collapsible'] = variable_get('override_node_options_facollapsible', 1);
+    	$form['attachments']['#collapsed'] = variable_get('override_node_options_facollapsed', 1);
+    }
+    if (module_exists(scheduler)) {
+    	$form['scheduler_settings']['#collapsible'] = variable_get('override_node_options_sscollapsible', 1);
+    	$form['scheduler_settings']['#collapsed'] = variable_get('override_node_options_sscollapsed', 1);
+    }
   }
 }
 
