@@ -11,16 +11,16 @@
  * Implementation of hook_perm().
  */
 function override_node_options_perm() {
-$results = db_query("SELECT type FROM {node_type}");
-
-while ($value = db_result($results)) {
-   $perms[] = 'override ' . $value . ' published option';
-   $perms[] = 'override ' . $value . ' promote to front page option';
-   $perms[] = 'override ' . $value . ' sticky option';
-   $perms[] = 'override ' . $value . ' revision option';
-   $perms[] = 'override ' . $value . ' authored on option';
-   $perms[] = 'override ' . $value . ' authored by option';
-}
+  $results = db_query("SELECT type FROM {node_type}");
+  
+  while ($value = db_result($results)) {
+    $perms[] = 'override ' . $value . ' published option';
+    $perms[] = 'override ' . $value . ' promote to front page option';
+    $perms[] = 'override ' . $value . ' sticky option';
+    $perms[] = 'override ' . $value . ' revision option';
+    $perms[] = 'override ' . $value . ' authored on option';
+    $perms[] = 'override ' . $value . ' authored by option';
+  }
   return $perms;
 }
 
@@ -37,8 +37,8 @@ function override_node_options_menu() {
     'page arguments' => array('override_node_options_admin_settings'),
     'access arguments' => array('administer site configuration'),
     'type' => MENU_NORMAL_ITEM,
-   );
-     return $items;
+  );
+  return $items;
 }
 
 
@@ -47,43 +47,43 @@ function override_node_options_menu() {
  * These settings are to control the collapsed and collapsible settings.
  */
 function override_node_options_admin_settings() {
-	    if (module_exists(upload)) {
-	    $form['attachments'] = array(
-        '#type' => 'fieldset',
-        '#title' => t('File attachments'),
-        '#description' => t('Options for the File attachments fieldset on the node form.'),
-         );
-
-	    $form['attachments']['override_node_options_facollapsible'] = array(
-		'#type' => 'checkbox',
-		'#title' => t('File attachments collapsible'),
-		'#default_value' => variable_get('override_node_options_facollapsible', 1),
+  if (module_exists(upload)) {
+    $form['attachments'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('File attachments'),
+      '#description' => t('Options for the File attachments fieldset on the node form.'),
+    );
+   $form['attachments']['override_node_options_facollapsible'] = array(
+  		'#type' => 'checkbox',
+  		'#title' => t('File attachments collapsible'),
+  		'#default_value' => variable_get('override_node_options_facollapsible', 1),
 		);
-		$form['attachments']['override_node_options_facollapsed'] = array(
-		'#type' => 'checkbox',
-		'#title' => t('File attachments collapsed by default'),
-		'#default_value' => variable_get('override_node_options_facollapsed', 1),
-		);
-	    }
-		if (module_exists(scheduler)) {
+	  $form['attachments']['override_node_options_facollapsed'] = array(
+  		'#type' => 'checkbox',
+  		'#title' => t('File attachments collapsed by default'),
+  		'#default_value' => variable_get('override_node_options_facollapsed', 1),
+  	);
+  }
+	    
+	if (module_exists(scheduler)) {
 		$form['scheduler_settings'] = array(
-        '#type' => 'fieldset',
-        '#title' => t('Scheduler settings'),
-        '#description' => t('Options for the Scheduler settings fieldset on the node form.'),
-         );
+      '#type' => 'fieldset',
+      '#title' => t('Scheduler settings'),
+      '#description' => t('Options for the Scheduler settings fieldset on the node form.'),
+    );
 
-	    $form['scheduler_settings']['override_node_options_sscollapsible'] = array(
-		'#type' => 'checkbox',
-		'#title' => t('Scheduler settings collapsible'),
-		'#default_value' => variable_get('override_node_options_sscollapsible', 1),
+	  $form['scheduler_settings']['override_node_options_sscollapsible'] = array(
+  		'#type' => 'checkbox',
+  		'#title' => t('Scheduler settings collapsible'),
+  		'#default_value' => variable_get('override_node_options_sscollapsible', 1),
 		);
 		$form['scheduler_settings']['override_node_options_sscollapsed'] = array(
-		'#type' => 'checkbox',
-		'#title' => t('Scheduler settings collapsed by default'),
-		'#default_value' => variable_get('override_node_options_sscollapsed', 1),
+  		'#type' => 'checkbox',
+  		'#title' => t('Scheduler settings collapsed by default'),
+  		'#default_value' => variable_get('override_node_options_sscollapsed', 1),
 		);
-		}
-		
+	}
+	
 		if (module_exists(node)) {	
         $form['authoring_information'] = array(
         '#type' => 'fieldset',
@@ -122,8 +122,7 @@ function override_node_options_admin_settings() {
 		);
 		}
 		
-		return system_settings_form($form);
-		
+	return system_settings_form($form);
 }
 
 /**
