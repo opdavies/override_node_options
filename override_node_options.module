@@ -47,7 +47,7 @@ function override_node_options_menu() {
  * These settings are to control the collapsed and collapsible settings.
  */
 function override_node_options_admin_settings() {
-  if (module_exists(upload)) {
+  if (module_exists('upload')) {
     $form['attachments'] = array(
       '#type' => 'fieldset',
       '#title' => t('File attachments'),
@@ -65,7 +65,7 @@ function override_node_options_admin_settings() {
   	);
   }
 	    
-	if (module_exists(scheduler)) {
+	if (module_exists('scheduler')) {
 		$form['scheduler_settings'] = array(
       '#type' => 'fieldset',
       '#title' => t('Scheduler settings'),
@@ -208,11 +208,11 @@ function override_node_options_form_alter(&$form, $form_state, $form_id) {
     $form['options']['#collapsible'] = variable_get('override_node_options_aicollapsible', 1);
     $form['options']['#collapsed'] = variable_get('override_node_options_aicollapsed', 1);
     	
-    if (module_exists(upload)) {
+    if (module_exists('upload')) {
     	$form['attachments']['#collapsible'] = variable_get('override_node_options_facollapsible', 1);
     	$form['attachments']['#collapsed'] = variable_get('override_node_options_facollapsed', 1);
     }
-    if (module_exists(scheduler)) {
+    if (module_exists('scheduler')) {
     	$form['scheduler_settings']['#collapsible'] = variable_get('override_node_options_sscollapsible', 1);
     	$form['scheduler_settings']['#collapsed'] = variable_get('override_node_options_sscollapsed', 1);
     }
