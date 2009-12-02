@@ -4,9 +4,6 @@
 /**
  * @file override_node_options.test
  * Provide tests for override_node_options.module
- * 
- * @todo: Write tests to check that submitting the node with the override permissions
- * actually has an effect on the database.
  */
 
 /**
@@ -28,44 +25,73 @@ class OverrideNodeOptionsCommonTestCase extends DrupalWebTestCase {
    *    the ordinary user can't see.
    *  - form_name_override: The form element name on overridden forms, ie what 
    *    to check the privileged user can see.
+   *  - form_value: The value a test should attempt to set in the form.
+   *  - db_table, db_field, db_value: The table and field in the database that 
+   *    altering this field should affect, and the value that is expected.
    */
   protected function testSets() {
+    $time = 1261267200;
     return array(
       'status' => array(
         'perm' => 'override page published option',
         'message_string' => 'Published checkbox',
         'form_name_normal' => 'status',
         'form_name_override' => 'override_publishing_status',
+        'form_value' => FALSE,
+        'db_table' => 'node',
+        'db_field' => 'status',
+        'db_value' => FALSE,
       ),
       'author' => array(
         'perm' => 'override page authored by option',
         'message_string' => 'Author field',
         'form_name_normal' => 'name',
         'form_name_override' => 'override_authored_by',
+        'form_value' => ' ', // Empty string does not work with drupalPost for some reason: @see http://drupal.org/node/649618.
+        'db_table' => 'node',
+        'db_field' => 'uid',
+        'db_value' => 0,
       ),
       'date' => array(
         'perm' => 'override page authored on option',
         'message_string' => 'Authored on date field',
         'form_name_normal' => 'date',
         'form_name_override' => 'override_authored_on',
+        'form_value' => date('Y-m-d', $time), // '2009-12-20'
+        'db_table' => 'node',
+        'db_field' => 'created',
+        'db_value' => $time,
       ),
       'promote' => array(
         'perm' => 'override page promote to front page option',
         'message_string' => 'Promoted checkbox',
         'form_name_normal' => 'promote',
         'form_name_override' => 'override_publishing_promote',
+        'form_value' => TRUE, // we create a page, they are not promoted by default
+        'db_table' => 'node',
+        'db_field' => 'promote',
+        'db_value' => 1,
       ),
       'sticky' => array(
         'perm' => 'override page sticky option',  
         'message_string' => 'Sticky checkbox',
         'form_name_normal' => 'sticky',
         'form_name_override' => 'override_publishing_sticky',
+        'form_value' => TRUE,
+        'db_table' => 'node',
+        'db_field' => 'sticky',
+        'db_value' => 1,
       ),
       'revision' => array(
         'perm' => 'override page revision option',
         'message_string' => 'Published checkbox',
         'form_name_normal' => 'revision',
         'form_name_override' => 'override_publishing_revision',
+        'form_value' => TRUE,
+        'db_table' => 'node_revisions',
+        // Since we act on a fresh node, it suffices to check there is now more than one revision
+        'db_field' => 'COUNT(vid)', 
+        'db_value' => 2,
       ),
     );
   }
@@ -153,6 +179,52 @@ class OverrideNodeOptionsFormsTestCase extends OverrideNodeOptionsCommonTestCase
       $this->drupalGet("node/$nid/edit");
       
       $this->assertNoField($test_set['form_name_override'], '', t($test_set['message_string'] . ' is not displayed to normal user'));
+    }
+  }
+}
+
+/**
+ * Test the user's input in override fields has the correct effect on the database. 
+ */
+class OverrideNodeOptionsDatabaseTestCase extends OverrideNodeOptionsCommonTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Override Node Options database testing',
+      'description' => 'Check that the changes the user makes to the node form act on the database.',
+      'group' => 'Override Node Options Tests',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp('override_node_options');  // Enable any modules required for the test
+  }
+
+  public function testOverrideNodeOptionsDatabase() {
+    $test_set_list = $this->testSets();
+    
+    $perms = array('create page content', 'edit any page content');
+    foreach ($test_set_list as $key => $test_set) {
+      $perms[] = $test_set['perm'];
+    }
+    $user = $this->drupalCreateUser($perms);
+    $this->drupalLogin($user);
+    $other_user = $this->drupalCreateUser();
+    
+    $node = $this->drupalCreateNode();
+    $nid = $node->nid;
+    
+    // Iterate over the test sets.
+    foreach ($test_set_list as $key => $test_set) {
+      // Edit the node.
+      $edit = array(
+        'title' => $this->randomString(),
+        $test_set['form_name_override'] => $test_set['form_value'],
+      );
+      $this->drupalPost("node/$nid/edit", $edit, 'Save');
+       
+      // Check the database.
+      $this->assertTrue(db_result(db_query('SELECT %s FROM {%s} WHERE nid = %d', $test_set['db_field'], $test_set['db_table'], $node->nid)) == $test_set['db_value'], t("Node successfully changed: $key is now " . $test_set['db_value']));
     }
   }
 }
