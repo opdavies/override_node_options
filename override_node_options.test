@@ -9,16 +9,10 @@
  * actually has an effect on the database.
  */
 
-class OverrideNodeOptionsTestCase extends DrupalWebTestCase {
-
-  public static function getInfo() {
-    return array(
-      'name' => 'Override Node Options basic functionality',
-      'description' => 'Check that override permissions give the rights users the right functionality.',
-      'group' => 'Override Node Options Tests',
-    );
-  }
-  
+/**
+ * Abstract class to hold common stuff.
+ */
+class OverrideNodeOptionsCommonTestCase extends DrupalWebTestCase { 
   /**
    * Define and return array that describes the tests to run.
    *
@@ -35,7 +29,7 @@ class OverrideNodeOptionsTestCase extends DrupalWebTestCase {
    *  - form_name_override: The form element name on overridden forms, ie what 
    *    to check the privileged user can see.
    */
-  private function testSets() {
+  protected function testSets() {
     return array(
       'status' => array(
         'perm' => 'override page published option',
@@ -73,6 +67,46 @@ class OverrideNodeOptionsTestCase extends DrupalWebTestCase {
         'form_name_normal' => 'revision',
         'form_name_override' => 'override_publishing_revision',
       ),
+    );
+  }
+
+  // From simpletest docs.
+  // A utility function we can use in debugging our test. This outputs the screen
+  // as an HTML file we can view, and uses the pass() method to report it to us
+  // in the simpletest web interface
+  protected function outputScreenContents($description, $basename) {
+    // This is a hack to get a directory that won't be cleaned up by simpletest
+    $file_dir = file_directory_path().'/../simpletest_output_pages';
+    if (!is_dir($file_dir)) {
+      mkdir($file_dir, 0777, TRUE);
+    }
+    $output_path = "$file_dir/$basename." . $this->randomName(10) . '.html';
+    $rv = file_put_contents($output_path, $this->drupalGetContent());
+    $this->pass("$description: Contents of result page are ".l('here',$output_path));
+  }
+  
+  protected function outputMessage($message, $basename = '') {
+    // This is a hack to get a directory that won't be cleaned up by simpletest
+    $file_dir = file_directory_path().'/../simpletest_output_pages';
+    if (!is_dir($file_dir)) {
+      mkdir($file_dir, 0777, TRUE);
+    }
+    $output_path = "$file_dir/$basename." . $this->randomName(10) . '.html';
+    $rv = file_put_contents($output_path, $message);
+    $this->pass("Message output ".l('here',$output_path));
+  }  
+}
+
+/**
+ * Test that fields are visible only to the users they ought to be visible to.
+ */
+class OverrideNodeOptionsFormsTestCase extends OverrideNodeOptionsCommonTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Override Node Options forms',
+      'description' => 'Check that override permissions show the right form elements.',
+      'group' => 'Override Node Options Tests',
     );
   }
 
@@ -120,20 +154,5 @@ class OverrideNodeOptionsTestCase extends DrupalWebTestCase {
       
       $this->assertNoField($test_set['form_name_override'], '', t($test_set['message_string'] . ' is not displayed to normal user'));
     }
-  }
-
-  // From simpletest docs.
-  // A utility function we can use in debugging our test. This outputs the screen
-  // as an HTML file we can view, and uses the pass() method to report it to us
-  // in the simpletest web interface
-  private function outputScreenContents($description, $basename) {
-    // This is a hack to get a directory that won't be cleaned up by simpletest
-    $file_dir = file_directory_path().'/../simpletest_output_pages';
-    if (!is_dir($file_dir)) {
-      mkdir($file_dir, 0777, TRUE);
-    }
-    $output_path = "$file_dir/$basename." . $this->randomName(10) . '.html';
-    $rv = file_put_contents($output_path, $this->drupalGetContent());
-    $this->pass("$description: Contents of result page are ".l('here',$output_path));
   }
 }
