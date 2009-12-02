@@ -97,15 +97,24 @@ class OverrideNodeOptionsTestCase extends DrupalWebTestCase {
     // We iterate over the test sets. 
     // For each set, we need to check an overridden user sees the form item, 
     // and a regular user does not.
-    $test_set_data = $this->testSets();
-    foreach ($test_set_data as $test_set) {
+    $test_set_list = $this->testSets();
+    foreach ($test_set_list as $key => $test_set) {
       // Create and test the override user.
       $override_user = $this->drupalCreateUser(array('create page content', 'edit any page content', $test_set['perm']));
       $this->drupalLogin($override_user);
       $this->drupalGet('node/1/edit');
       
       $this->assertFieldByName($test_set['form_name_override'], '', t($test_set['message_string'] . ' is displayed to override user'));
-      // @todo: should we also test that this user can't see any of the other fields?
+
+      // Test that the current override user can't see any of the other fields
+      // (eg, that if you have the override to publish you can't sticky.
+      // Get the list of test sets and remove the item for the current test.
+      $other_field_list = $test_set_list;
+      unset($other_field_list[$key]);
+      // Iterate over the other fields.
+      foreach ($other_field_list as $other_field) {
+        $this->assertNoField($other_field['form_name_override'], '', t($other_field['message_string'] . ' is not displayed to override user with ' . $test_set['message_string']));
+      }
       
       // Test the regular user.
       $this->drupalLogin($ordinary_user);
