@@ -80,7 +80,7 @@ class OverrideNodeOptionsTestCase extends DrupalWebTestCase {
     parent::setUp('override_node_options');  // Enable any modules required for the test
   }
 
-  // Create a mymodule node using the node form
+  // Test that fields are visible only to the users they ought to be visible to.
   public function testOverrideNodeOptionsFieldVisibility() {
     // Create our regular user
     $ordinary_user = $this->drupalCreateUser(array('create page content', 'edit any page content'));
@@ -124,6 +124,7 @@ class OverrideNodeOptionsTestCase extends DrupalWebTestCase {
     }
   }
 
+  // From simpletest docs.
   // A utility function we can use in debugging our test. This outputs the screen
   // as an HTML file we can view, and uses the pass() method to report it to us
   // in the simpletest web interface
