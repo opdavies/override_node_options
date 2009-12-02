@@ -80,19 +80,17 @@ class OverrideNodeOptionsTestCase extends DrupalWebTestCase {
     parent::setUp('override_node_options');  // Enable any modules required for the test
   }
 
-  // Test that fields are visible only to the users they ought to be visible to.
+  /**
+   * Test that fields are visible only to the users they ought to be visible to.
+   */
   public function testOverrideNodeOptionsFieldVisibility() {
     // Create our regular user
     $ordinary_user = $this->drupalCreateUser(array('create page content', 'edit any page content'));
     $this->drupalLogin($ordinary_user);
     // We create and later edit a node rather than just look at /node/add/page because new nodes
     // don't show the revisions checkbox.
-    $edit = array(
-      'title' => $this->randomName(32),
-      'body' => $this->randomName(64),
-    );
-    $this->drupalPost('node/add/page', $edit, t('Save'));
-    
+    $node = $this->drupalCreateNode();
+    $nid = $node->nid;    
 
     // We iterate over the test sets. 
     // For each set, we need to check an overridden user sees the form item, 
@@ -102,7 +100,7 @@ class OverrideNodeOptionsTestCase extends DrupalWebTestCase {
       // Create and test the override user.
       $override_user = $this->drupalCreateUser(array('create page content', 'edit any page content', $test_set['perm']));
       $this->drupalLogin($override_user);
-      $this->drupalGet('node/1/edit');
+      $this->drupalGet("node/$nid/edit");
       
       $this->assertFieldByName($test_set['form_name_override'], '', t($test_set['message_string'] . ' is displayed to override user'));
 
@@ -118,7 +116,7 @@ class OverrideNodeOptionsTestCase extends DrupalWebTestCase {
       
       // Test the regular user.
       $this->drupalLogin($ordinary_user);
-      $this->drupalGet('node/1/edit');
+      $this->drupalGet("node/$nid/edit");
       
       $this->assertNoField($test_set['form_name_override'], '', t($test_set['message_string'] . ' is not displayed to normal user'));
     }
