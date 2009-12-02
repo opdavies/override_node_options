@@ -13,8 +13,8 @@ class OverrideNodeOptionsCommonTestCase extends DrupalWebTestCase {
   /**
    * Define and return array that describes the tests to run.
    *
-   * This allows us to abstract the tests which are all of the form 'check
-   * privileged user can see the form element while ordinary user cannot'.
+   * This allows us to abstract the tests which do the same sort of thing but
+   * on different node form fields.
    * 
    * @return
    *  An array of test set items, each of which itself is an array with the following
@@ -140,9 +140,6 @@ class OverrideNodeOptionsFormsTestCase extends OverrideNodeOptionsCommonTestCase
     parent::setUp('override_node_options');  // Enable any modules required for the test
   }
 
-  /**
-   * Test that fields are visible only to the users they ought to be visible to.
-   */
   public function testOverrideNodeOptionsFieldVisibility() {
     // Create our regular user
     $ordinary_user = $this->drupalCreateUser(array('create page content', 'edit any page content'));
