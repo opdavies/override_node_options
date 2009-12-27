@@ -2,8 +2,8 @@
 // $Id$
 
 /**
- * @file override_node_options.test
- * Provide tests for override_node_options.module
+ * @file
+ * Unit tests for the override_node_options module.
  */
 
 /**

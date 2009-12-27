@@ -3,7 +3,7 @@
 
 /**
  * @file
- * Admin page callbacks for the template module.
+ * Admin page callbacks for the override_node_options module.
  */
 
 /**

@@ -28,8 +28,8 @@ function override_node_options_perm() {
  */
 function override_node_options_menu() {
   $items['admin/settings/override_node_options'] = array(
-    'title' => t('Override node options'),
-    'description' => t('Allow non-admins to override the default publishing options for nodes they can edit'),
+    'title' => 'Override node options',
+    'description' => 'Allow non-admins to override the default publishing options for nodes they can edit',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('override_node_options_settings_form'),
     'access arguments' => array('administer site configuration'),
