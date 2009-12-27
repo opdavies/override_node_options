@@ -11,15 +11,14 @@
  * Implements hook_perm().
  */
 function override_node_options_perm() {
-  $results = db_query("SELECT type FROM {node_type}");
-
-  while ($value = db_result($results)) {
-    $perms[] = 'override ' . $value . ' published option';
-    $perms[] = 'override ' . $value . ' promote to front page option';
-    $perms[] = 'override ' . $value . ' sticky option';
-    $perms[] = 'override ' . $value . ' revision option';
-    $perms[] = 'override ' . $value . ' authored on option';
-    $perms[] = 'override ' . $value . ' authored by option';
+  $node_types = array_keys(node_get_types('names'));
+  foreach ($node_types as $node_type) {
+    $perms[] = 'override ' . $node_type . ' published option';
+    $perms[] = 'override ' . $node_type . ' promote to front page option';
+    $perms[] = 'override ' . $node_type . ' sticky option';
+    $perms[] = 'override ' . $node_type . ' revision option';
+    $perms[] = 'override ' . $node_type . ' authored on option';
+    $perms[] = 'override ' . $node_type . ' authored by option';
   }
   return $perms;
 }
@@ -66,7 +65,6 @@ function override_node_options_admin_settings() {
       '#title' => t('Scheduler settings'),
       '#description' => t('Options for the Scheduler settings fieldset on the node form.'),
     );
-
     $form['scheduler_settings']['override_node_options_sscollapsible'] = array(
       '#type' => 'checkbox',
       '#title' => t('Scheduler settings collapsible'),
@@ -111,7 +109,7 @@ function override_node_options_admin_settings() {
     '#default_value' => variable_get('override_node_options_pocollapsed', 1),
   );
 
-    return system_settings_form($form);
+  return system_settings_form($form);
 }
 
 /**
