@@ -9,13 +9,13 @@
 /**
  * Abstract class to hold common stuff.
  */
-class OverrideNodeOptionsCommonTestCase extends DrupalWebTestCase { 
+class OverrideNodeOptionsCommonTestCase extends DrupalWebTestCase {
   /**
    * Define and return array that describes the tests to run.
    *
    * This allows us to abstract the tests which do the same sort of thing but
    * on different node form fields.
-   * 
+   *
    * @return
    *  An array of test set items, each of which itself is an array with the following
    *  keys:
@@ -23,10 +23,10 @@ class OverrideNodeOptionsCommonTestCase extends DrupalWebTestCase {
    *  - message_string: The text to insert into assertion messages.
    *  - form_name_normal: The form element name on normal forms, ie what to check
    *    the ordinary user can't see.
-   *  - form_name_override: The form element name on overridden forms, ie what 
+   *  - form_name_override: The form element name on overridden forms, ie what
    *    to check the privileged user can see.
    *  - form_value: The value a test should attempt to set in the form.
-   *  - db_table, db_field, db_value: The table and field in the database that 
+   *  - db_table, db_field, db_value: The table and field in the database that
    *    altering this field should affect, and the value that is expected.
    */
   protected function testSets() {
@@ -73,7 +73,7 @@ class OverrideNodeOptionsCommonTestCase extends DrupalWebTestCase {
         'db_value' => 1,
       ),
       'sticky' => array(
-        'perm' => 'override page sticky option',  
+        'perm' => 'override page sticky option',
         'message_string' => 'Sticky checkbox',
         'form_name_normal' => 'sticky',
         'form_name_override' => 'override_publishing_sticky',
@@ -90,7 +90,7 @@ class OverrideNodeOptionsCommonTestCase extends DrupalWebTestCase {
         'form_value' => TRUE,
         'db_table' => 'node_revisions',
         // Since we act on a fresh node, it suffices to check there is now more than one revision
-        'db_field' => 'COUNT(vid)', 
+        'db_field' => 'COUNT(vid)',
         'db_value' => 2,
       ),
     );
@@ -102,25 +102,25 @@ class OverrideNodeOptionsCommonTestCase extends DrupalWebTestCase {
   // in the simpletest web interface
   protected function outputScreenContents($description, $basename) {
     // This is a hack to get a directory that won't be cleaned up by simpletest
-    $file_dir = file_directory_path().'/../simpletest_output_pages';
+    $file_dir = file_directory_path() . '/../simpletest_output_pages';
     if (!is_dir($file_dir)) {
       mkdir($file_dir, 0777, TRUE);
     }
     $output_path = "$file_dir/$basename." . $this->randomName(10) . '.html';
     $rv = file_put_contents($output_path, $this->drupalGetContent());
-    $this->pass("$description: Contents of result page are ".l('here',$output_path));
+    $this->pass("$description: Contents of result page are " . l('here', $output_path));
   }
-  
+
   protected function outputMessage($message, $basename = '') {
     // This is a hack to get a directory that won't be cleaned up by simpletest
-    $file_dir = file_directory_path().'/../simpletest_output_pages';
+    $file_dir = file_directory_path() . '/../simpletest_output_pages';
     if (!is_dir($file_dir)) {
       mkdir($file_dir, 0777, TRUE);
     }
     $output_path = "$file_dir/$basename." . $this->randomName(10) . '.html';
     $rv = file_put_contents($output_path, $message);
-    $this->pass("Message output ".l('here',$output_path));
-  }  
+    $this->pass("Message output " . l('here', $output_path));
+  }
 }
 
 /**
@@ -147,10 +147,10 @@ class OverrideNodeOptionsFormsTestCase extends OverrideNodeOptionsCommonTestCase
     // We create and later edit a node rather than just look at /node/add/page because new nodes
     // don't show the revisions checkbox.
     $node = $this->drupalCreateNode();
-    $nid = $node->nid;    
+    $nid = $node->nid;
 
-    // We iterate over the test sets. 
-    // For each set, we need to check an overridden user sees the form item, 
+    // We iterate over the test sets.
+    // For each set, we need to check an overridden user sees the form item,
     // and a regular user does not.
     $test_set_list = $this->testSets();
     foreach ($test_set_list as $key => $test_set) {
@@ -158,7 +158,7 @@ class OverrideNodeOptionsFormsTestCase extends OverrideNodeOptionsCommonTestCase
       $override_user = $this->drupalCreateUser(array('create page content', 'edit any page content', $test_set['perm']));
       $this->drupalLogin($override_user);
       $this->drupalGet("node/$nid/edit");
-      
+
       $this->assertFieldByName($test_set['form_name_override'], '', t($test_set['message_string'] . ' is displayed to override user'));
 
       // Test that the current override user can't see any of the other fields
@@ -170,18 +170,18 @@ class OverrideNodeOptionsFormsTestCase extends OverrideNodeOptionsCommonTestCase
       foreach ($other_field_list as $other_field) {
         $this->assertNoField($other_field['form_name_override'], '', t($other_field['message_string'] . ' is not displayed to override user with ' . $test_set['message_string']));
       }
-      
+
       // Test the regular user.
       $this->drupalLogin($ordinary_user);
       $this->drupalGet("node/$nid/edit");
-      
+
       $this->assertNoField($test_set['form_name_override'], '', t($test_set['message_string'] . ' is not displayed to normal user'));
     }
   }
 }
 
 /**
- * Test the user's input in override fields has the correct effect on the database. 
+ * Test the user's input in override fields has the correct effect on the database.
  */
 class OverrideNodeOptionsDatabaseTestCase extends OverrideNodeOptionsCommonTestCase {
 
@@ -199,7 +199,7 @@ class OverrideNodeOptionsDatabaseTestCase extends OverrideNodeOptionsCommonTestC
 
   public function testOverrideNodeOptionsDatabase() {
     $test_set_list = $this->testSets();
-    
+
     $perms = array('create page content', 'edit any page content');
     foreach ($test_set_list as $key => $test_set) {
       $perms[] = $test_set['perm'];
@@ -207,10 +207,10 @@ class OverrideNodeOptionsDatabaseTestCase extends OverrideNodeOptionsCommonTestC
     $user = $this->drupalCreateUser($perms);
     $this->drupalLogin($user);
     $other_user = $this->drupalCreateUser();
-    
+
     $node = $this->drupalCreateNode();
     $nid = $node->nid;
-    
+
     // Iterate over the test sets.
     foreach ($test_set_list as $key => $test_set) {
       // Edit the node.
@@ -219,7 +219,7 @@ class OverrideNodeOptionsDatabaseTestCase extends OverrideNodeOptionsCommonTestC
         $test_set['form_name_override'] => $test_set['form_value'],
       );
       $this->drupalPost("node/$nid/edit", $edit, 'Save');
-       
+
       // Check the database.
       $this->assertTrue(db_result(db_query('SELECT %s FROM {%s} WHERE nid = %d', $test_set['db_field'], $test_set['db_table'], $node->nid)) == $test_set['db_value'], t("Node successfully changed: $key is now " . $test_set['db_value']));
     }
