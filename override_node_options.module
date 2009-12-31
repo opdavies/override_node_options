@@ -118,19 +118,17 @@ function override_node_options_form_alter(&$form, $form_state, $form_id) {
 /**
  * Perform additional node form validation normally skipped by core.
  */
-function override_node_options_validate_node($form, $form_state) {
-  $node = (object) $form_state['values'];
-
+function override_node_options_validate_node($form, &$form_state) {
   // Validate the "authored by" field.
-  if (!empty($node->name) && !($account = user_load(array('name' => $node->name)))) {
+  if (!empty($form_state['values']['name']) && !($account = user_load(array('name' => $form_state['values']['name'])))) {
     // The use of empty() is mandatory in the context of usernames
     // as the empty string denotes the anonymous user. In case we
     // are dealing with an anonymous user we set the user ID to 0.
-    form_set_error('name', t('The username %name does not exist.', array('%name' => $node->name)));
+    form_set_error('name', t('The username %name does not exist.', array('%name' => $form_state['values']['name'])));
   }
 
   // Validate the "authored on" field. As of PHP 5.1.0, strtotime returns FALSE instead of -1 upon failure.
-  if (!empty($node->date) && strtotime($node->date) <= 0) {
+  if (!empty($form_state['values']['date']) && strtotime($form_state['values']['date']) <= 0) {
     form_set_error('date', t('You have to specify a valid date.'));
   }
 }
@@ -139,17 +137,13 @@ function override_node_options_validate_node($form, $form_state) {
  * Perform additional node form submission processing normally skipped by core.
  */
 function override_node_options_submit_node($form, &$form_state) {
-  $node = (object) $form_state['values'];
-
   // Populate the "authored by" field.
-  if ($account = user_load(array('name' => $node->name))) {
-    $node->uid = $account->uid;
+  if ($account = user_load(array('name' => $form_state['values']['name']))) {
+    $form_state['values']['uid'] = $account->uid;
   }
   else {
-    $node->uid = 0;
+    $form_state['values']['uid'] = 0;
   }
-
-  $form_state['values'] = (array) $node;
 }
 
 /**
