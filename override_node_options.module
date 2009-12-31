@@ -42,12 +42,7 @@ function override_node_options_menu() {
  * Implements hook_form_alter().
  */
 function override_node_options_form_alter(&$form, $form_state, $form_id) {
-  if (isset($form['type']['#value']) && $form['type']['#value'] . '_node_form' == $form_id) {
-    if (user_access('administer nodes')) {
-      // Modifications are not necessary for node admins.
-      return;
-    }
-
+  if (isset($form['type']['#value']) && $form['type']['#value'] . '_node_form' == $form_id && !user_access('administer nodes')) {
     // Get a copy of the current node object.
     $node = $form['#node'];
 
@@ -104,11 +99,11 @@ function override_node_options_form_alter(&$form, $form_state, $form_id) {
     $form['author']['#collapsible'] = variable_get('override_node_options_aicollapsible', 1);
     $form['author']['#collapsed'] = variable_get('override_node_options_aicollapsed', 1);
 
-    if (module_exists('upload')) {
+    if (module_exists('upload') && isset($form['attachments'])) {
       $form['attachments']['#collapsible'] = variable_get('override_node_options_facollapsible', 1);
       $form['attachments']['#collapsed'] = variable_get('override_node_options_facollapsed', 1);
     }
-    if (module_exists('scheduler')) {
+    if (module_exists('scheduler') && isset($form['scheduler_settings'])) {
       $form['scheduler_settings']['#collapsible'] = variable_get('override_node_options_sscollapsible', 1);
       $form['scheduler_settings']['#collapsed'] = variable_get('override_node_options_sscollapsed', 1);
     }
