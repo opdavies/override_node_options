@@ -6,196 +6,120 @@
  * Unit tests for the override_node_options module.
  */
 
-/**
- * Abstract class to hold common stuff.
- */
-class OverrideNodeOptionsCommonTestCase extends DrupalWebTestCase {
+class OverrideNodeOptionsTestCase extends DrupalWebTestCase {
+  protected $normal_user;
+  protected $admin_user;
+  protected $node;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Override node options',
+      'description' => 'Functional tests for overridding options on node forms.',
+      'group' => 'Override node options',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp('override_node_options');
+    $this->normal_user = $this->drupalCreateUser(array('create page content', 'edit any page content'));
+    $this->node = $this->drupalCreateNode();
+  }
+
   /**
-   * Define and return array that describes the tests to run.
+   * Assert that fields in a node were updated to certail values.
    *
-   * This allows us to abstract the tests which do the same sort of thing but
-   * on different node form fields.
-   *
-   * @return
-   *  An array of test set items, each of which itself is an array with the following
-   *  keys:
-   *  - perm: The permission the privileged user should have
-   *  - message_string: The text to insert into assertion messages.
-   *  - form_name_normal: The form element name on normal forms, ie what to check
-   *    the ordinary user can't see.
-   *  - form_name_override: The form element name on overridden forms, ie what
-   *    to check the privileged user can see.
-   *  - form_value: The value a test should attempt to set in the form.
-   *  - db_table, db_field, db_value: The table and field in the database that
-   *    altering this field should affect, and the value that is expected.
+   * @param $node
+   *   The node object to check (will be reloaded from the database).
+   * @param $fields
+   *   An array of values to check equality, keyed by node object property.
    */
-  protected function testSets() {
-    $time = 1261267200;
-    return array(
-      'status' => array(
-        'perm' => 'override page published option',
-        'message_string' => 'Published checkbox',
-        'form_name_normal' => 'status',
-        'form_name_override' => 'override_publishing_status',
-        'form_value' => FALSE,
-        'db_table' => 'node',
-        'db_field' => 'status',
-        'db_value' => FALSE,
-      ),
-      'author' => array(
-        'perm' => 'override page authored by option',
-        'message_string' => 'Author field',
-        'form_name_normal' => 'name',
-        'form_name_override' => 'override_authored_by',
-        'form_value' => ' ', // Empty string does not work with drupalPost for some reason: @see http://drupal.org/node/649618.
-        'db_table' => 'node',
-        'db_field' => 'uid',
-        'db_value' => 0,
-      ),
-      'date' => array(
-        'perm' => 'override page authored on option',
-        'message_string' => 'Authored on date field',
-        'form_name_normal' => 'date',
-        'form_name_override' => 'override_authored_on',
-        'form_value' => date('Y-m-d', $time), // '2009-12-20'
-        'db_table' => 'node',
-        'db_field' => 'created',
-        'db_value' => $time,
-      ),
-      'promote' => array(
-        'perm' => 'override page promote to front page option',
-        'message_string' => 'Promoted checkbox',
-        'form_name_normal' => 'promote',
-        'form_name_override' => 'override_publishing_promote',
-        'form_value' => TRUE, // we create a page, they are not promoted by default
-        'db_table' => 'node',
-        'db_field' => 'promote',
-        'db_value' => 1,
-      ),
-      'sticky' => array(
-        'perm' => 'override page sticky option',
-        'message_string' => 'Sticky checkbox',
-        'form_name_normal' => 'sticky',
-        'form_name_override' => 'override_publishing_sticky',
-        'form_value' => TRUE,
-        'db_table' => 'node',
-        'db_field' => 'sticky',
-        'db_value' => 1,
-      ),
-      'revision' => array(
-        'perm' => 'override page revision option',
-        'message_string' => 'Published checkbox',
-        'form_name_normal' => 'revision',
-        'form_name_override' => 'override_publishing_revision',
-        'form_value' => TRUE,
-        'db_table' => 'node_revisions',
-        // Since we act on a fresh node, it suffices to check there is now more than one revision
-        'db_field' => 'COUNT(vid)',
-        'db_value' => 2,
-      ),
-    );
-  }
-}
-
-/**
- * Test that fields are visible only to the users they ought to be visible to.
- */
-class OverrideNodeOptionsFormsTestCase extends OverrideNodeOptionsCommonTestCase {
-
-  public static function getInfo() {
-    return array(
-      'name' => 'Override Node Options forms',
-      'description' => 'Check that override permissions show the right form elements.',
-      'group' => 'Override Node Options Tests',
-    );
-  }
-
-  public function setUp() {
-    parent::setUp('override_node_options');  // Enable any modules required for the test
-  }
-
-  public function testOverrideNodeOptionsFieldVisibility() {
-    // Create our regular user
-    $ordinary_user = $this->drupalCreateUser(array('create page content', 'edit any page content'));
-    $this->drupalLogin($ordinary_user);
-    // We create and later edit a node rather than just look at /node/add/page because new nodes
-    // don't show the revisions checkbox.
-    $node = $this->drupalCreateNode();
-    $nid = $node->nid;
-
-    // We iterate over the test sets.
-    // For each set, we need to check an overridden user sees the form item,
-    // and a regular user does not.
-    $test_set_list = $this->testSets();
-    foreach ($test_set_list as $key => $test_set) {
-      // Create and test the override user.
-      $override_user = $this->drupalCreateUser(array('create page content', 'edit any page content', $test_set['perm']));
-      $this->drupalLogin($override_user);
-      $this->drupalGet("node/$nid/edit");
-
-      $this->assertFieldByName($test_set['form_name_override'], '', t($test_set['message_string'] . ' is displayed to override user'));
-
-      // Test that the current override user can't see any of the other fields
-      // (eg, that if you have the override to publish you can't sticky.
-      // Get the list of test sets and remove the item for the current test.
-      $other_field_list = $test_set_list;
-      unset($other_field_list[$key]);
-      // Iterate over the other fields.
-      foreach ($other_field_list as $other_field) {
-        $this->assertNoField($other_field['form_name_override'], '', t($other_field['message_string'] . ' is not displayed to override user with ' . $test_set['message_string']));
-      }
-
-      // Test the regular user.
-      $this->drupalLogin($ordinary_user);
-      $this->drupalGet("node/$nid/edit");
-
-      $this->assertNoField($test_set['form_name_override'], '', t($test_set['message_string'] . ' is not displayed to normal user'));
+  function assertNodeFieldsUpdated(stdClass $node, array $fields) {
+    // Re-load the node from the database to make sure we have the current
+    // values.
+    $node = node_load($node->nid, NULL, TRUE);
+    foreach ($fields as $field => $value) {
+      $this->assertEqual($node->$field, $value, t('Node @field was updated to !value, expected !expected.', array('@field' => $field, '!value' => var_export($node->$field, TRUE), '!expected' => var_export($value, TRUE))));
     }
   }
-}
 
-/**
- * Test the user's input in override fields has the correct effect on the database.
- */
-class OverrideNodeOptionsDatabaseTestCase extends OverrideNodeOptionsCommonTestCase {
+  /**
+   * Assert that the user cannot access fields on node add and edit forms.
+   *
+   * @param $node
+   *   The node object, will be used on the node edit form.
+   * @param $fields
+   *   An array of form fields to check.
+   */
+  function assertNodeFieldsNoAccess(stdClass $node, array $fields) {
+    $this->drupalGet('node/add/' . $node->type);
+    foreach ($fields as $field) {
+      $this->assertNoFieldByName($field);
+    }
 
-  public static function getInfo() {
-    return array(
-      'name' => 'Override Node Options database testing',
-      'description' => 'Check that the changes the user makes to the node form act on the database.',
-      'group' => 'Override Node Options Tests',
+    $this->drupalGet('node/' . $this->node->nid . '/edit');
+    foreach ($fields as $field) {
+      $this->assertNoFieldByName($field);
+    }
+  }
+
+  /**
+   * Test the 'Authoring information' fieldset.
+   */
+  function testNodeOptions() {
+    $this->admin_user = $this->drupalCreateUser(array('create page content', 'edit any page content', 'override page published option', 'override page promote to front page option', 'override page sticky option'));
+    $this->drupalLogin($this->admin_user);
+
+    $fields = array(
+      'status' => (bool) !$this->node->status,
+      'promote' => (bool) !$this->node->promote,
+      'sticky' => (bool) !$this->node->sticky,
     );
+    $this->drupalPost('node/' . $this->node->nid . '/edit', $fields, t('Save'));
+    $this->assertNodeFieldsUpdated($this->node, $fields);
+
+    $this->drupalLogin($this->normal_user);
+    $this->assertNodeFieldsNoAccess($this->node, array_keys($fields));
   }
 
-  public function setUp() {
-    parent::setUp('override_node_options');  // Enable any modules required for the test
+  /**
+   * Test the 'Revision information' fieldset.
+   */
+  function testNodeRevisions() {
+    $this->admin_user = $this->drupalCreateUser(array('create page content', 'edit any page content', 'override page revision option'));
+    $this->drupalLogin($this->admin_user);
+
+    $fields = array(
+      'revision' => TRUE,
+    );
+    $this->drupalPost('node/' . $this->node->nid . '/edit', $fields, t('Save'));
+    $this->assertNodeFieldsUpdated($this->node, array('vid' => $this->node->vid + 1));
+
+    $this->drupalLogin($this->normal_user);
+    $this->assertNodeFieldsNoAccess($this->node, array_keys($fields));
   }
 
-  public function testOverrideNodeOptionsDatabase() {
-    $test_set_list = $this->testSets();
+  /**
+   * Test the 'Authoring information' fieldset.
+   */
+  function testNodeAuthor() {
+    $this->admin_user = $this->drupalCreateUser(array('create page content', 'edit any page content', 'override page authored on option', 'override page authored by option'));
+    $this->drupalLogin($this->admin_user);
 
-    $perms = array('create page content', 'edit any page content');
-    foreach ($test_set_list as $key => $test_set) {
-      $perms[] = $test_set['perm'];
-    }
-    $user = $this->drupalCreateUser($perms);
-    $this->drupalLogin($user);
-    $other_user = $this->drupalCreateUser();
+    $this->drupalPost('node/' . $this->node->nid . '/edit', array('name' => 'invalid-user'), t('Save'));
+    $this->assertText('The username invalid-user does not exist.');
 
-    $node = $this->drupalCreateNode();
-    $nid = $node->nid;
+    $this->drupalPost('node/' . $this->node->nid . '/edit', array('date' => 'invalid-date'), t('Save'));
+    $this->assertText('You have to specify a valid date.');
 
-    // Iterate over the test sets.
-    foreach ($test_set_list as $key => $test_set) {
-      // Edit the node.
-      $edit = array(
-        'title' => $this->randomString(),
-        $test_set['form_name_override'] => $test_set['form_value'],
-      );
-      $this->drupalPost("node/$nid/edit", $edit, 'Save');
+    $time = time() + 500;
+    $fields = array(
+      'name' => '',
+      'date' => format_date($time, 'custom', 'Y-m-d H:i:s O'),
+    );
+    $this->drupalPost('node/' . $this->node->nid . '/edit', $fields, t('Save'));
+    $this->assertNodeFieldsUpdated($this->node, array('uid' => 0, 'created' => $time));
 
-      // Check the database.
-      $this->assertTrue(db_result(db_query('SELECT %s FROM {%s} WHERE nid = %d', $test_set['db_field'], $test_set['db_table'], $node->nid)) == $test_set['db_value'], t("Node successfully changed: $key is now " . $test_set['db_value']));
-    }
+    $this->drupalLogin($this->normal_user);
+    $this->assertNodeFieldsNoAccess($this->node, array_keys($fields));
   }
 }
