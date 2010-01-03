@@ -13,6 +13,7 @@
 function override_node_options_perm() {
   $node_types = array_keys(node_get_types('names'));
   foreach ($node_types as $node_type) {
+    $node_type = check_plain($node_type);
     $perms[] = 'override ' . $node_type . ' published option';
     $perms[] = 'override ' . $node_type . ' promote to front page option';
     $perms[] = 'override ' . $node_type . ' sticky option';
