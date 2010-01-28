@@ -152,9 +152,18 @@ function override_node_options_submit_node($form, &$form_state) {
  */
 function override_node_options_element_children_access($element) {
   foreach (element_children($element) as $key) {
-    if (!isset($element[$key]['#access']) || !empty($element[$key]['#access'])) {
-      return TRUE;
+    // Skip un-accessible children.
+    if (isset($element[$key]['#access']) && !$element[$key]['#access']) {
+      continue;
     }
+
+    // Skip value and hidden elements, since they are not rendered.
+    if (isset($element[$key]['#type']) && in_array($element[$key]['#type'], array('value', 'hidden'))) {
+      continue;
+    }
+
+    return TRUE;
   }
+
   return FALSE;
 }
