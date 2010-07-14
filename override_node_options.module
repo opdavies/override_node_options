@@ -20,6 +20,10 @@ function override_node_options_perm() {
     $perms[] = 'override ' . $node_type . ' revision option';
     $perms[] = 'override ' . $node_type . ' authored on option';
     $perms[] = 'override ' . $node_type . ' authored by option';
+    if (module_exists('comment')) {
+      $perms[] = 'override ' . $node_type . ' comment settings';
+    }
+    
   }
   return $perms;
 }
@@ -82,7 +86,12 @@ function override_node_options_form_alter(&$form, $form_state, $form_id) {
     $form['options']['promote']['#access'] = user_access('override ' . $node->type . ' promote to front page option');
     $form['options']['sticky']['#access'] = user_access('override ' . $node->type . ' sticky option');
     $form['options']['#access'] |= override_node_options_element_children_access($form['options']);
-
+    
+    // Add access to the 'Comment settings' fieldset.
+    if (module_exists('comment') && isset($form['comment_settings']) && !user_access('administer comments')) {
+      $form['comment_settings']['#access'] = user_access('override ' . $node->type . ' comment settings');
+    }
+    
     // Add extra validation and processing if the user does not have the
     // 'administer nodes' permission since it would be otherwise skipped by core.
     if ($form['author']['#access']) {
