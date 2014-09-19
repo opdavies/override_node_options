@@ -6,9 +6,23 @@
  */
 
 /**
+ * Implementation of hook_install().
+ */
+function override_node_options_install() {
+  db_query('UPDATE {system} SET weight = -1 WHERE name = "%s"', 'override_node_options');
+}
+
+/**
  * Implements hook_uninstall().
  */
 function override_node_options_uninstall() {
   db_query("DELETE FROM {variable} WHERE name LIKE 'override_node_options_%'");
   // TODO we could be leaving permissions in the permission table, but they're tricky to remove
+}
+
+/**
+ * Implementation of hook_update_N().
+ */
+function override_node_options_update_6100() {
+  db_query('UPDATE {system} SET weight = -1 WHERE name = "%s"', 'override_node_options');
 }
