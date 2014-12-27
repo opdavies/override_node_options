@@ -24,5 +24,7 @@ function override_node_options_uninstall() {
  * Implementation of hook_update_N().
  */
 function override_node_options_update_6100() {
-  db_query('UPDATE {system} SET weight = -1 WHERE name = "%s"', 'override_node_options');
+  $ret = array();
+  $ret[] = update_sql("UPDATE {system} SET weight = -1 WHERE name = 'override_node_options'");
+  return $ret;
 }
