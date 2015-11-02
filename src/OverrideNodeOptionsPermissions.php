@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\override_node_options\OverrideNodeOptionsPermissions.
+ */
+
 namespace Drupal\override_node_options;
 
 use Drupal\Core\StringTranslation\StringTranslationTrait;
