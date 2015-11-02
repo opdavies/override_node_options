@@ -32,3 +32,14 @@ function override_node_options_form_alter(array &$form, FormStateInterface $form
     $form['uid']['#access'] = $user->hasPermission("override $node_type authored by option");
   }
 }
+
+/**
+ * Implements hook_entity_type_alter().
+ */
+function override_node_options_entity_type_alter(array &$entity_types) {
+  /** @var $entity_types \Drupal\Core\Entity\EntityTypeInterface[] */
+  // Set the node form class to OverrideNodeOptionsNodeForm so that we can
+  // override NodeForm::actions() and allow for overriding the publish option.
+  $entity_types['node']->setFormClass('default', '\Drupal\override_node_options\OverrideNodeOptionsNodeForm');
+  $entity_types['node']->setFormClass('edit', '\Drupal\override_node_options\OverrideNodeOptionsNodeForm');
+}
