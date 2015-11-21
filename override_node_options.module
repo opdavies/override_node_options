@@ -33,10 +33,10 @@ function override_node_options_entity_field_access($operation, FieldDefinitionIn
        case 'uid':
          return AccessResult::allowedIfHasPermission($account, "override $bundle authored by option");
      }
-   }
+  }
 
-   return AccessResult::neutral();
- }
+  return AccessResult::neutral();
+}
 
 /**
  * Implements hook_entity_type_alter().
