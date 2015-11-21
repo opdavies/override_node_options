@@ -13,8 +13,7 @@ function override_node_options_entity_field_access($operation, FieldDefinitionIn
   $bundle = $field_definition->getTargetBundle();
   $administer_nodes = $account->hasPermission('administer nodes');
 
-//  if ($operation == 'edit' && $entity_type == 'node' && !$administer_nodes) {
-  if ($operation == 'edit' && $entity_type == 'node') {
+  if ($operation == 'edit' && $entity_type == 'node' && !$administer_nodes) {
      switch ($field_definition->getName()) {
        case 'promote':
          return AccessResult::allowedIfHasPermission($account, "override $bundle promote to front page option");
