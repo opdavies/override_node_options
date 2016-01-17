@@ -16,6 +16,8 @@ use Drupal\simpletest\WebTestBase;
  */
 class OverrideNodeOptionsTest extends WebTestBase {
 
+  protected $profile = 'standard';
+
   protected $normal_user;
   protected $admin_user;
   protected $node;
