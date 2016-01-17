@@ -92,7 +92,7 @@ class OverrideNodeOptionsTest extends WebTestBase {
    *   An array of form fields to check.
    */
   public function assertNodeFieldsNoAccess(NodeInterface $node, array $fields) {
-    $this->drupalGet('node/add/' . $node->type);
+    $this->drupalGet('node/add/' . $node->getType());
     foreach ($fields as $field) {
       $this->assertNoFieldByName($field);
     }
