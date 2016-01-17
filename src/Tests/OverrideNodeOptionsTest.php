@@ -57,7 +57,7 @@ class OverrideNodeOptionsTest extends WebTestBase {
   }
 
   /**
-   * Assert that fields in a node were updated to certail values.
+   * Assert that fields in a node were updated to certain values.
    *
    * @param NodeInterface $node
    *   The node object to check (will be reloaded from the database).
