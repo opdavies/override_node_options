@@ -15,7 +15,6 @@ function override_node_options_form_alter(array &$form, FormStateInterface $form
       return;
     }
     $node_type = $form_object->getEntity()->bundle();
-    kpr($node_type);die;
 
     $form['promote']['#access'] = $user->hasPermission("override $node_type promote to front page option");
 
