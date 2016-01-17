@@ -18,11 +18,14 @@ class OverrideNodeOptionsPermissions {
    * Returns an array of additional permissions.
    *
    * @return array
+   *   An array of permissions.
    */
   public function permissions() {
     $permissions = [];
 
-    foreach (NodeType::loadMultiple() as $type) {
+    /** @var NodeType[] $node_types */
+    $node_types = NodeType::loadMultiple();
+    foreach ($node_types as $type) {
       $id = $type->id();
       $name = $type->label();
 
