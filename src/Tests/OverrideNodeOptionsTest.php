@@ -8,6 +8,7 @@
 namespace Drupal\override_node_options\Tests;
 
 use Drupal\node\Entity\Node;
+use Drupal\node\NodeInterface;
 use Drupal\simpletest\WebTestBase;
 
 /**
@@ -23,6 +24,11 @@ class OverrideNodeOptionsTest extends WebTestBase {
 
   protected $adminUser;
 
+  /**
+   * A node to test against.
+   *
+   * @var NodeInterface $node
+   */
   protected $node;
 
   /**
@@ -50,12 +56,12 @@ class OverrideNodeOptionsTest extends WebTestBase {
   /**
    * Assert that fields in a node were updated to certail values.
    *
-   * @param Node $node
+   * @param NodeInterface $node
    *   The node object to check (will be reloaded from the database).
    * @param array $fields
    *   An array of values to check equality, keyed by node object property.
    */
-  public function assertNodeFieldsUpdated(Node $node, array $fields) {
+  public function assertNodeFieldsUpdated(NodeInterface $node, array $fields) {
     // Re-load the node from the database to make sure we have the current
     // values.
     $node = node_load($node->nid, NULL, TRUE);
@@ -77,12 +83,12 @@ class OverrideNodeOptionsTest extends WebTestBase {
   /**
    * Assert that the user cannot access fields on node add and edit forms.
    *
-   * @param Node $node
+   * @param NodeInterface $node
    *   The node object, will be used on the node edit form.
    * @param array $fields
    *   An array of form fields to check.
    */
-  public function assertNodeFieldsNoAccess(Node $node, array $fields) {
+  public function assertNodeFieldsNoAccess(NodeInterface $node, array $fields) {
     $this->drupalGet('node/add/' . $node->type);
     foreach ($fields as $field) {
       $this->assertNoFieldByName($field);
