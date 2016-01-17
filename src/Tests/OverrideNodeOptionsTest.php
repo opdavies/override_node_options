@@ -7,7 +7,7 @@
 
 namespace Drupal\override_node_options\Tests;
 
-use Drupal\node\Entity\Node;
+use Drupal\node\Entity\NodeType;
 use Drupal\node\NodeInterface;
 use Drupal\simpletest\WebTestBase;
 
@@ -41,6 +41,11 @@ class OverrideNodeOptionsTest extends WebTestBase {
    */
   public function setUp() {
     parent::setUp();
+
+    $types = NodeType::loadMultiple();
+    if (empty($types['article'])) {
+      $this->drupalCreateContentType(['type' => 'page', 'name' => t('Page')]);
+    }
 
     $this->normalUser = $this->drupalCreateUser(
       [
