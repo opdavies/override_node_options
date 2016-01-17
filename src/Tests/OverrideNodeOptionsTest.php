@@ -7,6 +7,7 @@
 
 namespace Drupal\override_node_options\Tests;
 
+use Drupal\node\Entity\Node;
 use Drupal\simpletest\WebTestBase;
 
 /**
@@ -18,8 +19,10 @@ class OverrideNodeOptionsTest extends WebTestBase {
 
   protected $profile = 'standard';
 
-  protected $normal_user;
-  protected $admin_user;
+  protected $normalUser;
+
+  protected $adminUser;
+
   protected $node;
 
   /**
@@ -29,41 +32,57 @@ class OverrideNodeOptionsTest extends WebTestBase {
    */
   public static $modules = ['override_node_options'];
 
+  /**
+   * {@inheritdoc}
+   */
   public function setUp() {
     parent::setUp();
 
-    $this->normal_user = $this->drupalCreateUser(array('create page content', 'edit any page content'));
+    $this->normalUser = $this->drupalCreateUser(
+      [
+        'create page content',
+        'edit any page content',
+      ]
+    );
     $this->node = $this->drupalCreateNode();
   }
 
   /**
    * Assert that fields in a node were updated to certail values.
    *
-   * @param $node
+   * @param Node $node
    *   The node object to check (will be reloaded from the database).
-   *
-   * @param $fields
+   * @param array $fields
    *   An array of values to check equality, keyed by node object property.
    */
-  public function assertNodeFieldsUpdated(stdClass $node, array $fields) {
+  public function assertNodeFieldsUpdated(Node $node, array $fields) {
     // Re-load the node from the database to make sure we have the current
     // values.
     $node = node_load($node->nid, NULL, TRUE);
     foreach ($fields as $field => $value) {
-      $this->assertEqual($node->$field, $value, $this->t('Node @field was updated to !value, expected !expected.', array('@field' => $field, '!value' => var_export($node->$field, TRUE), '!expected' => var_export($value, TRUE))));
+      $this->assertEqual(
+        $node->$field,
+        $value,
+        $this->t('Node @field was updated to !value, expected !expected.',
+          [
+            '@field' => $field,
+            '!value' => var_export($node->$field, TRUE),
+            '!expected' => var_export($value, TRUE),
+          ]
+        )
+      );
     }
   }
 
   /**
    * Assert that the user cannot access fields on node add and edit forms.
    *
-   * @param $node
+   * @param Node $node
    *   The node object, will be used on the node edit form.
-   *
-   * @param $fields
+   * @param array $fields
    *   An array of form fields to check.
    */
-  public function assertNodeFieldsNoAccess(stdClass $node, array $fields) {
+  public function assertNodeFieldsNoAccess(Node $node, array $fields) {
     $this->drupalGet('node/add/' . $node->type);
     foreach ($fields as $field) {
       $this->assertNoFieldByName($field);
@@ -79,8 +98,14 @@ class OverrideNodeOptionsTest extends WebTestBase {
    * Test the 'Authoring information' fieldset.
    */
   public function testNodeOptions() {
-    $this->admin_user = $this->drupalCreateUser(array('create page content', 'edit any page content', 'override page published option', 'override page promote to front page option', 'override page sticky option'));
-    $this->drupalLogin($this->admin_user);
+    $this->adminUser = $this->drupalCreateUser([
+      'create page content',
+      'edit any page content',
+      'override page published option',
+      'override page promote to front page option',
+      'override page sticky option',
+    ]);
+    $this->drupalLogin($this->adminUser);
 
     $fields = array(
       'status' => (bool) !$this->node->status,
@@ -90,7 +115,7 @@ class OverrideNodeOptionsTest extends WebTestBase {
     $this->drupalPostForm('node/' . $this->node->nid . '/edit', $fields, t('Save'));
     $this->assertNodeFieldsUpdated($this->node, $fields);
 
-    $this->drupalLogin($this->normal_user);
+    $this->drupalLogin($this->normalUser);
     $this->assertNodeFieldsNoAccess($this->node, array_keys($fields));
   }
 
@@ -98,8 +123,14 @@ class OverrideNodeOptionsTest extends WebTestBase {
    * Test the 'Revision information' fieldset.
    */
   public function testNodeRevisions() {
-    $this->admin_user = $this->drupalCreateUser(array('create page content', 'edit any page content', 'override page revision option'));
-    $this->drupalLogin($this->admin_user);
+    $this->adminUser = $this->drupalCreateUser(
+      [
+        'create page content',
+        'edit any page content',
+        'override page revision option',
+      ]
+    );
+    $this->drupalLogin($this->adminUser);
 
     $fields = array(
       'revision' => TRUE,
@@ -108,7 +139,7 @@ class OverrideNodeOptionsTest extends WebTestBase {
     $this->drupalPostForm('node/' . $this->node->nid . '/edit', $fields, t('Save'));
     $this->assertNodeFieldsUpdated($this->node, array('vid' => $this->node->vid));
 
-    $this->drupalLogin($this->normal_user);
+    $this->drupalLogin($this->normalUser);
     $this->assertNodeFieldsNoAccess($this->node, array_keys($fields));
   }
 
@@ -116,8 +147,15 @@ class OverrideNodeOptionsTest extends WebTestBase {
    * Test the 'Authoring information' fieldset.
    */
   public function testNodeAuthor() {
-    $this->admin_user = $this->drupalCreateUser(array('create page content', 'edit any page content', 'override page authored on option', 'override page authored by option'));
-    $this->drupalLogin($this->admin_user);
+    $this->adminUser = $this->drupalCreateUser(
+      [
+        'create page content',
+        'edit any page content',
+        'override page authored on option',
+        'override page authored by option',
+      ]
+    );
+    $this->drupalLogin($this->adminUser);
 
     $this->drupalPostForm('node/' . $this->node->nid . '/edit', array('name' => 'invalid-user'), t('Save'));
     $this->assertText('The username invalid-user does not exist.');
@@ -133,7 +171,7 @@ class OverrideNodeOptionsTest extends WebTestBase {
     $this->drupalPostForm('node/' . $this->node->nid . '/edit', $fields, t('Save'));
     $this->assertNodeFieldsUpdated($this->node, array('uid' => 0, 'created' => $time));
 
-    $this->drupalLogin($this->normal_user);
+    $this->drupalLogin($this->normalUser);
     $this->assertNodeFieldsNoAccess($this->node, array_keys($fields));
   }
 }
