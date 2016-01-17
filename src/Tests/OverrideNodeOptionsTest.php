@@ -64,7 +64,7 @@ class OverrideNodeOptionsTest extends WebTestBase {
   public function assertNodeFieldsUpdated(NodeInterface $node, array $fields) {
     // Re-load the node from the database to make sure we have the current
     // values.
-    $node = node_load($node->nid, NULL, TRUE);
+    $node = node_load($node->id(), NULL, TRUE);
     foreach ($fields as $field => $value) {
       $this->assertEqual(
         $node->$field,
@@ -94,7 +94,7 @@ class OverrideNodeOptionsTest extends WebTestBase {
       $this->assertNoFieldByName($field);
     }
 
-    $this->drupalGet('node/' . $this->node->nid . '/edit');
+    $this->drupalGet('node/' . $this->node->id() . '/edit');
     foreach ($fields as $field) {
       $this->assertNoFieldByName($field);
     }
@@ -118,7 +118,7 @@ class OverrideNodeOptionsTest extends WebTestBase {
       'promote' => (bool) !$this->node->promote,
       'sticky' => (bool) !$this->node->sticky,
     );
-    $this->drupalPostForm('node/' . $this->node->nid . '/edit', $fields, t('Save'));
+    $this->drupalPostForm('node/' . $this->node->id() . '/edit', $fields, t('Save'));
     $this->assertNodeFieldsUpdated($this->node, $fields);
 
     $this->drupalLogin($this->normalUser);
@@ -142,7 +142,7 @@ class OverrideNodeOptionsTest extends WebTestBase {
       'revision' => TRUE,
     );
 
-    $this->drupalPostForm('node/' . $this->node->nid . '/edit', $fields, t('Save'));
+    $this->drupalPostForm('node/' . $this->node->id() . '/edit', $fields, t('Save'));
     $this->assertNodeFieldsUpdated($this->node, array('vid' => $this->node->vid));
 
     $this->drupalLogin($this->normalUser);
@@ -163,10 +163,10 @@ class OverrideNodeOptionsTest extends WebTestBase {
     );
     $this->drupalLogin($this->adminUser);
 
-    $this->drupalPostForm('node/' . $this->node->nid . '/edit', array('name' => 'invalid-user'), t('Save'));
+    $this->drupalPostForm('node/' . $this->node->id() . '/edit', array('name' => 'invalid-user'), t('Save'));
     $this->assertText('The username invalid-user does not exist.');
 
-    $this->drupalPostForm('node/' . $this->node->nid . '/edit', array('date' => 'invalid-date'), t('Save'));
+    $this->drupalPostForm('node/' . $this->node->id() . '/edit', array('date' => 'invalid-date'), t('Save'));
     $this->assertText('You have to specify a valid date.');
 
     $time = time();
@@ -174,7 +174,7 @@ class OverrideNodeOptionsTest extends WebTestBase {
       'name' => '',
       'date' => format_date($time, 'custom', 'Y-m-d H:i:s O'),
     ];
-    $this->drupalPostForm('node/' . $this->node->nid . '/edit', $fields, t('Save'));
+    $this->drupalPostForm('node/' . $this->node->id() . '/edit', $fields, t('Save'));
     $this->assertNodeFieldsUpdated($this->node, array('uid' => 0, 'created' => $time));
 
     $this->drupalLogin($this->normalUser);
