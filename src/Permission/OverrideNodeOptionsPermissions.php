@@ -5,7 +5,7 @@
  * Contains \Drupal\override_node_options\OverrideNodeOptionsPermissions.
  */
 
-namespace Drupal\override_node_options;
+namespace Drupal\override_node_options\Permission;
 
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\node\Entity\NodeType;

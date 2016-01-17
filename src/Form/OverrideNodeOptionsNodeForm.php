@@ -5,7 +5,7 @@
  * Contains \Drupal\override_node_options\OverrideNodeOptionsNodeForm.
  */
 
-namespace Drupal\override_node_options;
+namespace Drupal\override_node_options\Form;
 
 use Drupal\node\NodeForm;
 use Drupal\Core\Form\FormStateInterface;

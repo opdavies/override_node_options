@@ -45,6 +45,6 @@ function override_node_options_entity_type_alter(array &$entity_types) {
   /** @var $entity_types \Drupal\Core\Entity\EntityTypeInterface[] */
   // Set the node form class to OverrideNodeOptionsNodeForm so that we can
   // override NodeForm::actions() and allow for overriding the publish option.
-  $entity_types['node']->setFormClass('default', '\Drupal\override_node_options\OverrideNodeOptionsNodeForm');
-  $entity_types['node']->setFormClass('edit', '\Drupal\override_node_options\OverrideNodeOptionsNodeForm');
+  $entity_types['node']->setFormClass('default', '\Drupal\override_node_options\Form\OverrideNodeOptionsNodeForm');
+  $entity_types['node']->setFormClass('edit', '\Drupal\override_node_options\Form\OverrideNodeOptionsNodeForm');
 }
