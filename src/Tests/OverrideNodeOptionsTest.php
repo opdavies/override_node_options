@@ -69,13 +69,13 @@ class OverrideNodeOptionsTest extends WebTestBase {
 
     foreach ($fields as $field => $value) {
       $this->assertEqual(
-        $node->$field,
+        $node->get($field)->value,
         $value,
-        $this->t('Node @field was updated to !value, expected !expected.',
+        t('Node :field was updated to :value, expected :expected.',
           [
-            '@field' => $field,
-            '!value' => var_export($node->$field, TRUE),
-            '!expected' => var_export($value, TRUE),
+            ':field' => $field,
+            ':value' => $node->get($field)->value,
+            ':expected' => $value,
           ]
         )
       );
