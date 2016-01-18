@@ -62,10 +62,15 @@ class OverrideNodeOptionsTest extends WebTestBase {
    * @param array $fields
    *   An array of values to check equality, keyed by node object property.
    */
-  public function assertNodeFieldsUpdated(NodeInterface $node, array $fields) {
-    // Re-load the node from the database to make sure we have the current
-    // values.
-    $node = node_load($node->id(), TRUE);
+  public function assertNodeFieldsUpdated(NodeInterface $node, array $fields, $vid = NULL) {
+    if (!$vid) {
+      // Re-load the node from the database to make sure we have the current
+      // values.
+      $node = node_load($node->id(), TRUE);
+    }
+    if ($vid) {
+      $node = node_revision_load($vid);
+    }
 
     foreach ($fields as $field => $value) {
       $this->assertEqual(
@@ -128,21 +133,17 @@ class OverrideNodeOptionsTest extends WebTestBase {
    * Test the 'Revision information' fieldset.
    */
   public function testNodeRevisions() {
-    $this->adminUser = $this->drupalCreateUser(
-      [
-        'create page content',
-        'edit any page content',
-        'override page revision option',
-      ]
-    );
+    $this->adminUser = $this->drupalCreateUser([
+      'create page content',
+      'edit any page content',
+      'override page revision option',
+    ]);
     $this->drupalLogin($this->adminUser);
 
-    $fields = array(
-      'revision' => TRUE,
-    );
+    $fields = ['revision' => TRUE];
 
     $this->drupalPostForm('node/' . $this->node->id() . '/edit', $fields, t('Save'));
-    $this->assertNodeFieldsUpdated($this->node, array('vid' => $this->node->vid));
+    $this->assertNodeFieldsUpdated($this->node, [], $this->node->getRevisionId());
 
     $this->drupalLogin($this->normalUser);
     $this->assertNodeFieldsNoAccess($this->node, array_keys($fields));
