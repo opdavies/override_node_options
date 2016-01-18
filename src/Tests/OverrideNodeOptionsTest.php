@@ -10,6 +10,7 @@ namespace Drupal\override_node_options\Tests;
 use Drupal\node\Entity\NodeType;
 use Drupal\node\NodeInterface;
 use Drupal\simpletest\WebTestBase;
+use Drupal\user\UserInterface;
 
 /**
  * Unit tests for the override_node_options module.
@@ -18,8 +19,18 @@ use Drupal\simpletest\WebTestBase;
  */
 class OverrideNodeOptionsTest extends WebTestBase {
 
+  /**
+   * A standard authenticated user.
+   *
+   * @var UserInterface $normalUser
+   */
   protected $normalUser;
 
+  /**
+   * An administrator user.
+   *
+   * @var UserInterface $adminUser
+   */
   protected $adminUser;
 
   /**

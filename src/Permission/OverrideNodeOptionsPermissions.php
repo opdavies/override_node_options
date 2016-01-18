@@ -60,4 +60,5 @@ class OverrideNodeOptionsPermissions {
 
     return $permissions;
   }
+
 }
