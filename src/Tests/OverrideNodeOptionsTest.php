@@ -65,7 +65,8 @@ class OverrideNodeOptionsTest extends WebTestBase {
   public function assertNodeFieldsUpdated(NodeInterface $node, array $fields) {
     // Re-load the node from the database to make sure we have the current
     // values.
-    $node = node_load($node->id(), NULL, TRUE);
+    $node = node_load($node->id(), TRUE);
+
     foreach ($fields as $field => $value) {
       $this->assertEqual(
         $node->$field,
