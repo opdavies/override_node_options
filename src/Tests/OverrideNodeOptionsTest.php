@@ -115,12 +115,9 @@ class OverrideNodeOptionsTest extends WebTestBase {
     ]);
     $this->drupalLogin($this->adminUser);
 
-    $fields = array(
-      'status' => (bool) !$this->node->status,
-      'promote' => (bool) !$this->node->promote,
-      'sticky' => (bool) !$this->node->sticky,
-    );
-    $this->drupalPostForm('node/' . $this->node->id() . '/edit', $fields, t('Save and publish'));
+    $fields = ['promote' => TRUE, 'sticky' => TRUE];
+
+    $this->drupalPostForm('node/' . $this->node->id() . '/edit', ['promote[value]' => TRUE, 'sticky[value]' => TRUE], t('Save and keep published'));
     $this->assertNodeFieldsUpdated($this->node, $fields);
 
     $this->drupalLogin($this->normalUser);
