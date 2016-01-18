@@ -162,19 +162,20 @@ class OverrideNodeOptionsTest extends WebTestBase {
     );
     $this->drupalLogin($this->adminUser);
 
-    $this->drupalPostForm('node/' . $this->node->id() . '/edit', array('name' => 'invalid-user'), t('Save'));
-    $this->assertText('The username invalid-user does not exist.');
+    $this->drupalPostForm('node/' . $this->node->id() . '/edit', ['uid[0][target_id]' => 'invalid-user'], t('Save'));
+    $this->assertText('There are no entities matching "invalid-user".');
 
-    $this->drupalPostForm('node/' . $this->node->id() . '/edit', array('date' => 'invalid-date'), t('Save'));
-    $this->assertText('You have to specify a valid date.');
+    $this->drupalPostForm('node/' . $this->node->id() . '/edit', array('created[0][value][date]' => 'invalid-date'), t('Save'));
+    $this->assertText('The Authored on date is invalid.');
 
     $time = time();
     $fields = [
-      'name' => '',
-      'date' => format_date($time, 'custom', 'Y-m-d H:i:s O'),
+      'uid[0][target_id]' => '',
+      'created[0][value][date]' => \Drupal::service('date.formatter')->format($time, 'custom', 'Y-m-d'),
+      'created[0][value][time]' => \Drupal::service('date.formatter')->format($time, 'custom', 'H:i:s'),
     ];
     $this->drupalPostForm('node/' . $this->node->id() . '/edit', $fields, t('Save'));
-    $this->assertNodeFieldsUpdated($this->node, array('uid' => 0, 'created' => $time));
+    $this->assertNodeFieldsUpdated($this->node, ['uid' => 0, 'created' => $time]);
 
     $this->drupalLogin($this->normalUser);
     $this->assertNodeFieldsNoAccess($this->node, array_keys($fields));
