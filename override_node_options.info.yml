@@ -3,3 +3,5 @@ description: Allow non-admins to override the default publishing options for nod
 type: module
 core: 8.x
 package: Permissions
+dependencies:
+  - node
