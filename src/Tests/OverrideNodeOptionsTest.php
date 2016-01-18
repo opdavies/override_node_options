@@ -47,12 +47,10 @@ class OverrideNodeOptionsTest extends WebTestBase {
       $this->drupalCreateContentType(['type' => 'page', 'name' => t('Page')]);
     }
 
-    $this->normalUser = $this->drupalCreateUser(
-      [
-        'create page content',
-        'edit any page content',
-      ]
-    );
+    $this->normalUser = $this->drupalCreateUser([
+      'create page content',
+      'edit any page content',
+    ]);
     $this->node = $this->drupalCreateNode();
   }
 
