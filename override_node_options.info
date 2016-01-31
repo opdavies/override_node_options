@@ -1,4 +1,4 @@
-name = Override node options
+name = Override Node Options
 description = "Allow non-admins to override the default publishing options for nodes they can edit."
 core = 7.x
 package = Permissions

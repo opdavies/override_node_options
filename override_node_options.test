@@ -19,9 +19,9 @@ class OverrideNodeOptionsTestCase extends DrupalWebTestCase {
    */
   public static function getInfo() {
     return array(
-      'name' => 'Override node options',
+      'name' => 'Override Node Options',
       'description' => 'Functional tests for overridding options on node forms.',
-      'group' => 'Override node options',
+      'group' => 'Override Node Options',
     );
   }
 
