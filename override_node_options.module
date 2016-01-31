@@ -23,9 +23,10 @@ function override_node_options_permission() {
 /**
  * Helper function to generate override node permission list for a given type.
  *
- * @param $type
+ * @param string $type
  *   The machine-readable name of the node type.
- * @return
+ *
+ * @return array
  *   An array of permission names and description.
  */
 function override_node_options_list_permissions($type) {
@@ -69,12 +70,12 @@ function override_node_options_list_permissions($type) {
 /**
  * Implements hook_form_alter().
  */
-function override_node_options_form_alter(&$form, $form_state, $form_id) {
+function override_node_options_form_alter(&$form, &$form_state, $form_id) {
   if (!empty($form['#node_edit_form']) && !user_access('administer nodes')) {
     // Get a copy of the current node object.
     $node = $form['#node'];
 
-    // Add access to the 'Revision information: log message' field
+    // Add access to the 'Revision information: log message' field.
     $form['revision_information']['log']['#access'] = user_access('enter ' . $node->type . ' revision log entry');
 
     // Add access to the 'Revision information' fieldset.
