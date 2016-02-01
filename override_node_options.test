@@ -89,6 +89,7 @@ class OverrideNodeOptionsTestCase extends DrupalWebTestCase {
       'override page published option',
       'override page promote to front page option',
       'override page sticky option',
+      'override page comment setting option',
     ));
     $this->drupalLogin($this->adminUser);
 
@@ -96,6 +97,7 @@ class OverrideNodeOptionsTestCase extends DrupalWebTestCase {
       'status' => (bool) !$this->node->status,
       'promote' => (bool) !$this->node->promote,
       'sticky' => (bool) !$this->node->sticky,
+      'comment' => COMMENT_NODE_OPEN,
     );
     $this->drupalPost('node/' . $this->node->nid . '/edit', $fields, t('Save'));
     $this->assertNodeFieldsUpdated($this->node, $fields);
