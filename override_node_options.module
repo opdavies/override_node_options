@@ -32,6 +32,10 @@ function override_node_options_form_alter(array &$form, FormStateInterface $form
 
 /**
  * Implements hook_entity_type_alter().
+ *
+ * @see NodeForm::actions()
+ *
+ * @todo Remove when https://www.drupal.org/node/1901216 is fixed.
  */
 function override_node_options_entity_type_alter(array &$entity_types) {
   // Set the node form class to OverrideNodeOptionsNodeForm so that we can
