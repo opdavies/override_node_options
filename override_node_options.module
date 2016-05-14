@@ -34,31 +34,32 @@ function override_node_options_list_permissions($type) {
   $type = check_plain($type);
 
   $permissions = array(
-    "override $type published option" => array(
+    sprintf('override %s published option', $type) => array(
       'title' => t('Override %type_name published option.', array('%type_name' => $name)),
     ),
-    "override $type promote to front page option" => array(
+    sprintf('override %s promote to front page option', $type) => array(
       'title' => t('Override %type_name promote to front page option.', array('%type_name' => $name)),
     ),
-    "override $type sticky option" => array(
+    sprintf('override %s sticky option', $type) => array(
       'title' => t('Override %type_name sticky option.', array('%type_name' => $name)),
     ),
-    "override $type revision option" => array(
+    sprintf('override %s revision option', $type) => array(
       'title' => t('Override %type_name revision option.', array('%type_name' => $name)),
     ),
-    "enter $type revision log entry" => array(
+    sprintf('enter %s revision log entry', $type) => array(
       'title' => t('Enter %type_name revision log entry.', array('%type_name' => $name)),
     ),
-    "override $type authored on option" => array(
+    sprintf('override %s authored on option', $type) => array(
       'title' => t('Override %type_name authored on option.', array('%type_name' => $name)),
     ),
-    "override $type authored by option" => array(
+    sprintf('override %s authored by option', $type) => array(
       'title' => t('Override %type_name authored by option.', array('%type_name' => $name)),
     ),
   );
+
   if (module_exists('comment')) {
     $permissions += array(
-      "override $type comment setting option" => array(
+      sprintf('override %s comment setting option', $type) => array(
         'title' => t('Override %type_name comment setting option.', array('%type_name' => $name)),
       ),
     );
@@ -76,15 +77,16 @@ function override_node_options_form_alter(&$form, &$form_state, $form_id) {
     $node = $form['#node'];
 
     // Add access to the 'Revision information: log message' field.
-    $form['revision_information']['log']['#access'] = user_access('enter ' . $node->type . ' revision log entry');
+    $form['revision_information']['log']['#access'] = user_access(sprintf('enter %s revision log entry', $node->type));
 
     // Add access to the 'Revision information' fieldset.
-    $form['revision_information']['revision']['#access'] = user_access('override ' . $node->type . ' revision option');
+    $form['revision_information']['revision']['#access'] = user_access(sprintf('override %s revision option', $node->type));
     $form['revision_information']['#access'] = element_get_visible_children($form['revision_information']);
 
     // Add access to the 'Authoring information' fieldset.
-    $form['author']['name']['#access'] = user_access('override ' . $node->type . ' authored by option');
-    $form['author']['date']['#access'] = user_access('override ' . $node->type . ' authored on option');
+    $form['author']['name']['#access'] = user_access(sprintf('override %s authored by option', $node->type));
+    $form['author']['date']['#access'] = user_access(sprintf('override %s authored on option', $node->type));
+
     if (array_key_exists('#access', $form['author'])) {
       $form['author']['#access'] |= element_get_visible_children($form['author']);
     }
@@ -93,9 +95,9 @@ function override_node_options_form_alter(&$form, &$form_state, $form_id) {
     }
 
     // Add access to the 'Publishing options' fieldset.
-    $form['options']['status']['#access'] = user_access('override ' . $node->type . ' published option');
-    $form['options']['promote']['#access'] = user_access('override ' . $node->type . ' promote to front page option');
-    $form['options']['sticky']['#access'] = user_access('override ' . $node->type . ' sticky option');
+    $form['options']['status']['#access'] = user_access(sprintf('override %s published option', $node->type));
+    $form['options']['promote']['#access'] = user_access(sprintf('override %s promote to front page option', $node->type));
+    $form['options']['sticky']['#access'] = user_access(sprintf('override %s sticky option', $node->type));
 
     // If access is granted for promote or sticky, show (but disable) status.
     // This keeps core's JS working, and correctly populates the vertical tab.
@@ -113,7 +115,7 @@ function override_node_options_form_alter(&$form, &$form_state, $form_id) {
 
     // Add access to the 'Comment settings' fieldset.
     if (module_exists('comment') && isset($form['comment_settings'])) {
-      $form['comment_settings']['#access'] |= user_access('override ' . $node->type . ' comment setting option');
+      $form['comment_settings']['#access'] |= user_access(sprintf('override %s comment setting option', $node->type));
     }
 
     // @todo Remove when http://drupal.org/node/683630 is fixed.
