@@ -7,7 +7,7 @@
  */
 
 /**
- * Implements hook_permisson().
+ * Implements hook_permission().
  */
 function override_node_options_permission() {
   $permissions = array();
