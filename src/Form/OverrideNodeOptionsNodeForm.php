@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\override_node_options\OverrideNodeOptionsNodeForm.
- */
-
 namespace Drupal\override_node_options\Form;
 
 use Drupal\node\NodeForm;
