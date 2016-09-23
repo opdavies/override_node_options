@@ -22,10 +22,10 @@ class OverrideNodeOptionsNodeForm extends NodeForm {
       $element['publish']['#published_status'] = TRUE;
       $element['publish']['#dropbutton'] = 'save';
       if ($node->isNew()) {
-        $element['publish']['#value'] = t('Save and publish');
+        $element['publish']['#value'] = $this->t('Save and publish');
       }
       else {
-        $element['publish']['#value'] = $node->isPublished() ? t('Save and keep published') : t('Save and publish');
+        $element['publish']['#value'] = $node->isPublished() ? $this->t('Save and keep published') : $this->t('Save and publish');
       }
       $element['publish']['#weight'] = 0;
 
@@ -35,10 +35,10 @@ class OverrideNodeOptionsNodeForm extends NodeForm {
       $element['unpublish']['#published_status'] = FALSE;
       $element['unpublish']['#dropbutton'] = 'save';
       if ($node->isNew()) {
-        $element['unpublish']['#value'] = t('Save as unpublished');
+        $element['unpublish']['#value'] = $this->t('Save as unpublished');
       }
       else {
-        $element['unpublish']['#value'] = !$node->isPublished() ? t('Save and keep unpublished') : t('Save and unpublish');
+        $element['unpublish']['#value'] = !$node->isPublished() ? $this->t('Save and keep unpublished') : $this->t('Save and unpublish');
       }
       $element['unpublish']['#weight'] = 10;
 
@@ -59,7 +59,7 @@ class OverrideNodeOptionsNodeForm extends NodeForm {
     $element['preview'] = array(
       '#type' => 'submit',
       '#access' => $preview_mode != DRUPAL_DISABLED && ($node->access('create') || $node->access('update')),
-      '#value' => t('Preview'),
+      '#value' => $this->t('Preview'),
       '#weight' => 20,
       '#submit' => array('::submitForm', '::preview'),
     );
