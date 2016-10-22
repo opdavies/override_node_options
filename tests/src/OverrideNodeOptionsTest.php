@@ -7,6 +7,7 @@
 
 namespace Drupal\override_node_options\Tests;
 
+use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
 use Drupal\node\NodeInterface;
 use Drupal\Tests\BrowserTestBase;
@@ -72,19 +73,21 @@ class OverrideNodeOptionsTest extends BrowserTestBase {
    *   The node object to check (will be reloaded from the database).
    * @param array $fields
    *   An array of values to check equality, keyed by node object property.
+   * @param int $vid
+   *   The node revision ID to load.
    */
   public function assertNodeFieldsUpdated(NodeInterface $node, array $fields, $vid = NULL) {
     if (!$vid) {
       // Re-load the node from the database to make sure we have the current
       // values.
-      $node = node_load($node->id(), TRUE);
+      $node = Node::load($node->id());
     }
     if ($vid) {
       $node = node_revision_load($vid);
     }
 
     foreach ($fields as $field => $value) {
-      $this->assertEqual(
+      self::assertEquals(
         $node->get($field)->value,
         $value,
         t('Node :field was updated to :value, expected :expected.',
@@ -109,12 +112,12 @@ class OverrideNodeOptionsTest extends BrowserTestBase {
   public function assertNodeFieldsNoAccess(NodeInterface $node, array $fields) {
     $this->drupalGet('node/add/' . $node->getType());
     foreach ($fields as $field) {
-      $this->assertNoFieldByName($field);
+      $this->assertSession()->fieldNotExists($field);
     }
 
     $this->drupalGet('node/' . $this->node->id() . '/edit');
     foreach ($fields as $field) {
-      $this->assertNoFieldByName($field);
+      $this->assertSession()->fieldNotExists($field);
     }
   }
 
@@ -175,10 +178,10 @@ class OverrideNodeOptionsTest extends BrowserTestBase {
     $this->drupalLogin($this->admin_user);
 
     $this->drupalPostForm('node/' . $this->node->id() . '/edit', ['uid[0][target_id]' => 'invalid-user'], t('Save'));
-    $this->assertText('There are no entities matching "invalid-user".');
+    $this->assertSession()->pageTextContains('There are no entities matching "invalid-user".');
 
     $this->drupalPostForm('node/' . $this->node->id() . '/edit', array('created[0][value][date]' => 'invalid-date'), t('Save'));
-    $this->assertText('The Authored on date is invalid.');
+    $this->assertSession()->pageTextContains('The Authored on date is invalid.');
 
     $time = time();
     $fields = [
