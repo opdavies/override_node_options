@@ -9,7 +9,7 @@ namespace Drupal\override_node_options\Tests;
 
 use Drupal\node\Entity\NodeType;
 use Drupal\node\NodeInterface;
-use Drupal\simpletest\WebTestBase;
+use Drupal\Tests\BrowserTestBase;
 use Drupal\user\UserInterface;
 
 /**
@@ -17,7 +17,7 @@ use Drupal\user\UserInterface;
  *
  * @group override_node_options
  */
-class OverrideNodeOptionsTest extends WebTestBase {
+class OverrideNodeOptionsTest extends BrowserTestBase {
 
   /**
    * A standard authenticated user.
@@ -50,7 +50,7 @@ class OverrideNodeOptionsTest extends WebTestBase {
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  protected function setUp() {
     parent::setUp();
 
     $types = NodeType::loadMultiple();
