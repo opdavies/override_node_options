@@ -22,16 +22,16 @@ class OverrideNodeOptionsTest extends BrowserTestBase {
   /**
    * A standard authenticated user.
    *
-   * @var UserInterface $normal_user
+   * @var UserInterface $normalUser
    */
-  protected $normal_user;
+  protected $normalUser;
 
   /**
    * An administrator user.
    *
-   * @var UserInterface $admin_user
+   * @var UserInterface $adminUser
    */
-  protected $admin_user;
+  protected $adminUser;
 
   /**
    * A node to test against.
@@ -58,7 +58,7 @@ class OverrideNodeOptionsTest extends BrowserTestBase {
       $this->drupalCreateContentType(['type' => 'page', 'name' => t('Page')]);
     }
 
-    $this->normal_user = $this->drupalCreateUser([
+    $this->normalUser = $this->drupalCreateUser([
       'create page content',
       'edit any page content',
     ]);
@@ -122,21 +122,21 @@ class OverrideNodeOptionsTest extends BrowserTestBase {
    * Test the 'Authoring information' fieldset.
    */
   public function testNodeOptions() {
-    $this->admin_user = $this->drupalCreateUser([
+    $this->adminUser = $this->drupalCreateUser([
       'create page content',
       'edit any page content',
       'override page published option',
       'override page promote to front page option',
       'override page sticky option',
     ]);
-    $this->drupalLogin($this->admin_user);
+    $this->drupalLogin($this->adminUser);
 
     $fields = ['promote' => TRUE, 'sticky' => TRUE];
 
     $this->drupalPostForm('node/' . $this->node->id() . '/edit', ['promote[value]' => TRUE, 'sticky[value]' => TRUE], t('Save and keep published'));
     $this->assertNodeFieldsUpdated($this->node, $fields);
 
-    $this->drupalLogin($this->normal_user);
+    $this->drupalLogin($this->normalUser);
     $this->assertNodeFieldsNoAccess($this->node, array_keys($fields));
   }
 
@@ -144,19 +144,19 @@ class OverrideNodeOptionsTest extends BrowserTestBase {
    * Test the 'Revision information' fieldset.
    */
   public function testNodeRevisions() {
-    $this->admin_user = $this->drupalCreateUser([
+    $this->adminUser = $this->drupalCreateUser([
       'create page content',
       'edit any page content',
       'override page revision option',
     ]);
-    $this->drupalLogin($this->admin_user);
+    $this->drupalLogin($this->adminUser);
 
     $fields = ['revision' => TRUE];
 
     $this->drupalPostForm('node/' . $this->node->id() . '/edit', $fields, t('Save'));
     $this->assertNodeFieldsUpdated($this->node, [], $this->node->getRevisionId());
 
-    $this->drupalLogin($this->normal_user);
+    $this->drupalLogin($this->normalUser);
     $this->assertNodeFieldsNoAccess($this->node, array_keys($fields));
   }
 
@@ -164,7 +164,7 @@ class OverrideNodeOptionsTest extends BrowserTestBase {
    * Test the 'Authoring information' fieldset.
    */
   public function testNodeAuthor() {
-    $this->admin_user = $this->drupalCreateUser(
+    $this->adminUser = $this->drupalCreateUser(
       [
         'create page content',
         'edit any page content',
@@ -172,7 +172,7 @@ class OverrideNodeOptionsTest extends BrowserTestBase {
         'override page authored by option',
       ]
     );
-    $this->drupalLogin($this->admin_user);
+    $this->drupalLogin($this->adminUser);
 
     $this->drupalPostForm('node/' . $this->node->id() . '/edit', ['uid[0][target_id]' => 'invalid-user'], t('Save'));
     $this->assertText('There are no entities matching "invalid-user".');
@@ -189,7 +189,7 @@ class OverrideNodeOptionsTest extends BrowserTestBase {
     $this->drupalPostForm('node/' . $this->node->id() . '/edit', $fields, t('Save'));
     $this->assertNodeFieldsUpdated($this->node, ['uid' => 0, 'created' => $time]);
 
-    $this->drupalLogin($this->normal_user);
+    $this->drupalLogin($this->normalUser);
     $this->assertNodeFieldsNoAccess($this->node, array_keys($fields));
   }
 }
